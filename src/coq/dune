@@ -1,0 +1,4 @@
+(coq.theory
+ (name Fano_PCG)
+ (libraries coq-core.coq))
+

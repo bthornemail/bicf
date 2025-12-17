@@ -1,0 +1,6 @@
+# dune init project bicf-coq --libs coq
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /home/main/.cache/dune/db
+# Workspace root: /home/main/devops/bicf-production/bicf-coq
+# Auto-detected concurrency: 4

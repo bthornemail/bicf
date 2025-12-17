@@ -1,0 +1,10 @@
+name = "bicf-production"
+version = "0.1.0"
+defaultTargets = ["bicf-production"]
+
+[[lean_lib]]
+name = "BicfProduction"
+
+[[lean_exe]]
+name = "bicf-production"
+root = "Main"

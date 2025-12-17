@@ -2,12 +2,13 @@ From Coq Require Import
   Lists.List
   Arith.PeanoNat
   Bool.Bool
-  Program.Equality.
+  Program.Equality
+  Lia.
 
 From Coq Require Import
   Fin.
 Import ListNotations.
-Open Scope fin_scope.
+(* Open Scope fin_scope. *)  (* Commented out: fin_scope not available in standard Coq Fin module *)
 
 (*
   ============================================================
@@ -15,9 +16,9 @@ Open Scope fin_scope.
   ============================================================
 *)
 
-Definition Point7  := fin 7.
-Definition Line7   := fin 7.
-Definition Point14 := fin 14.
+Definition Point7  := { n : nat | n < 7 }.
+Definition Line7   := { n : nat | n < 7 }.
+Definition Point14 := { n : nat | n < 14 }.
 
 (*
   ============================================================
@@ -40,12 +41,9 @@ Next Obligation.
   destruct p; simpl; lia.
 Qed.
 
-Program Definition toPoint7_first (x : Point14)
+Definition toPoint7_first (x : Point14)
   (H : proj1_sig x < 7) : Point7 :=
   exist _ (proj1_sig x) H.
-Next Obligation.
-  destruct x; simpl in *; lia.
-Qed.
 
 Program Definition toPoint7_second (x : Point14)
   (H : ~ proj1_sig x < 7) : Point7 :=
@@ -94,7 +92,22 @@ Record FanoPlane := {
 (* Explicit Fano plane instance *)
 Theorem fano_line_card :
   forall ℓ, length (fano_line_points ℓ) = 3.
-Proof. intros []; simpl; reflexivity. Qed.
+Proof.
+  intros [n Hn].
+  unfold fano_line_points.
+  simpl.
+  (* Case analysis on n: 0, 1, 2, 3, 4, 5, or 6 *)
+  (* We do exhaustive case analysis by destructing n repeatedly *)
+  destruct n as [|n]; [simpl; reflexivity|].
+  destruct n as [|n]; [simpl; reflexivity|].
+  destruct n as [|n]; [simpl; reflexivity|].
+  destruct n as [|n]; [simpl; reflexivity|].
+  destruct n as [|n]; [simpl; reflexivity|].
+  destruct n as [|n]; [simpl; reflexivity|].
+  (* After 6 destructs, remaining case is n = 6 (the default case in match) *)
+  (* The match statement will use the default case _ which handles n=6 *)
+  simpl; reflexivity.
+Qed.
 
 Theorem fano_unique_line :
   forall p q, p <> q ->
@@ -102,12 +115,8 @@ Theorem fano_unique_line :
 Proof.
   (* Finite case analysis: for each pair of distinct points, find the unique line *)
   intros p q Hneq.
-  (* Case analysis on p and q (each has 7 possible values) *)
-  destruct p as [p_val Hp], q as [q_val Hq].
   (* We need to show there exists a unique line containing both points *)
   (* Since we have explicit incidence table, we can enumerate all cases *)
-  (* For efficiency, we'll use a helper lemma that checks all pairs *)
-  
   (* Strategy: For each pair (i, j) with i <> j, find the line containing both *)
   (* This is decidable since we have explicit table *)
   
@@ -115,7 +124,10 @@ Proof.
   (* But Coq doesn't have native_decide like Lean, so we do manual cases *)
   
   (* Helper: check if a line contains both points *)
-  assert (forall ℓ, FanoI (exist _ p_val Hp) ℓ /\ FanoI (exist _ q_val Hq) ℓ ->
+  (* First, extract the values from p and q *)
+  set (p_val := proj1_sig p).
+  set (q_val := proj1_sig q).
+  assert (forall ℓ, FanoI p ℓ /\ FanoI q ℓ ->
            (proj1_sig ℓ = match (p_val, q_val) with
                           | (0, 1) | (1, 0) | (0, 3) | (3, 0) | (1, 3) | (3, 1) => 0
                           | (0, 2) | (2, 0) | (0, 6) | (6, 0) | (2, 6) | (6, 2) => 1
@@ -132,22 +144,23 @@ Proof.
     simpl in Hpℓ, Hqℓ.
     (* Check which line contains both points by examining the table *)
     destruct ℓ_val; simpl in Hpℓ, Hqℓ;
-    (* For each line, check if it contains both p_val and q_val *)
-    try (destruct p_val; try destruct q_val; simpl; try contradiction; auto).
+    (* For each line, check if it contains both points *)
+    (* We need to use proj1_sig p and proj1_sig q since p_val and q_val are not in scope here *)
+    try (destruct (proj1_sig p) as [|?]; try destruct (proj1_sig q) as [|?]; simpl; try contradiction; auto).
     (* This is tedious but correct - we verify each line's points *)
     (* Line 0: {0,1,3} *)
-    destruct p_val; destruct q_val; simpl in Hpℓ, Hqℓ;
+    destruct (proj1_sig p) as [|p_val']; destruct (proj1_sig q) as [|q_val']; simpl in Hpℓ, Hqℓ;
     try (apply in_app_or in Hpℓ; destruct Hpℓ; [|apply in_app_or in Hpℓ; destruct Hpℓ]);
     try (apply in_app_or in Hqℓ; destruct Hqℓ; [|apply in_app_or in Hqℓ; destruct Hqℓ]);
     try (simpl; auto; fail).
     (* Similar for other lines - this is exhaustive but verbose *)
     (* For production, we'd use a more elegant approach, but this works *)
-    all: try (destruct p_val; destruct q_val; simpl; auto; fail).
+    all: try (destruct p_val as [|?]; destruct q_val as [|?]; simpl; auto; fail).
   }
   
   (* Now construct the unique line *)
   (* Find the line number for this pair *)
-  remember (match (p_val, q_val) with
+  remember (match (proj1_sig p, proj1_sig q) with
             | (0, 1) | (1, 0) | (0, 3) | (3, 0) | (1, 3) | (3, 1) => 0
             | (0, 2) | (2, 0) | (0, 6) | (6, 0) | (2, 6) | (6, 2) => 1
             | (0, 4) | (4, 0) | (0, 5) | (5, 0) | (4, 5) | (5, 4) => 2
@@ -159,7 +172,7 @@ Proof.
             end) as ℓ_num.
   
   (* Verify ℓ_num < 7 *)
-  assert (Hℓnum: ℓ_num < 7) by (subst; repeat (destruct p_val; destruct q_val; simpl; lia || auto)).
+  assert (Hℓnum: ℓ_num < 7) by (subst; repeat (destruct (proj1_sig p) as [|?]; destruct (proj1_sig q) as [|?]; simpl; try lia; auto)).
   
   (* Construct the line *)
   exists (exist _ ℓ_num Hℓnum).
@@ -168,15 +181,15 @@ Proof.
     split.
     + (* p is on line ℓ_num *)
       subst ℓ_num.
-      destruct p_val; destruct q_val; simpl; auto;
+      destruct (proj1_sig p) as [|p_val]; destruct (proj1_sig q) as [|q_val]; simpl; auto;
       try (left; auto); try (right; left; auto); try (right; right; auto).
       (* Exhaustive case analysis - verify each point is in the correct line *)
-      all: try (destruct p_val; destruct q_val; simpl; auto; fail).
+      all: try (destruct p_val as [|?]; destruct q_val as [|?]; simpl; auto; fail).
     + (* q is on line ℓ_num *)
       subst ℓ_num.
-      destruct p_val; destruct q_val; simpl; auto;
+      destruct (proj1_sig p) as [|p_val]; destruct (proj1_sig q) as [|q_val]; simpl; auto;
       try (left; auto); try (right; left; auto); try (right; right; auto).
-      all: try (destruct p_val; destruct q_val; simpl; auto; fail).
+      all: try (destruct p_val as [|?]; destruct q_val as [|?]; simpl; auto; fail).
   - (* Uniqueness *)
     intros ℓ' [Hpℓ' Hqℓ'].
     (* Use the helper assertion *)
@@ -188,7 +201,7 @@ Proof.
     (* This follows from the explicit table structure *)
     subst ℓ_num.
     (* Verify by case analysis that the line is unique *)
-    destruct p_val; destruct q_val; simpl in H;
+    destruct (proj1_sig p) as [|p_val]; destruct (proj1_sig q) as [|q_val]; simpl in H;
     try (injection H; intros; subst; f_equal; apply proof_irrelevance).
     (* For each pair, only one line contains both points *)
     all: try (destruct ℓ'_val; simpl in H; try discriminate; auto).

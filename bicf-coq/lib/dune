@@ -1,0 +1,3 @@
+(library
+ (name bicf_coq)
+ (libraries coq))

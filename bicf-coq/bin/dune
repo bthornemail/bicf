@@ -1,0 +1,4 @@
+(executable
+ (public_name bicf-coq)
+ (name main)
+ (libraries bicf_coq coq))
