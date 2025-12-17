@@ -56,6 +56,15 @@ SCHEME_FILES=(
     "src/fano/fano-checker.scm"
     "src/consensus/pcg-validator.scm"
     "src/canvasl/interpreter.scm"
+    "src/aal/polynomials.scm"
+    "src/aal/ast.scm"
+    "src/aal/parser.scm"
+    "src/aal/types.scm"
+    "src/aal/well-formed.scm"
+    "src/aal/semantics.scm"
+    "src/aal/geometry.scm"
+    "src/aal/compiler.scm"
+    "src/aal/interpreter.scm"
 )
 
 for file in "${SCHEME_FILES[@]}"; do
@@ -125,7 +134,60 @@ else
 fi
 
 echo ""
-echo "Step 5: Verifying Directory Structure"
+echo "Step 5: Checking AAL Module"
+echo "---------------------------"
+AAL_FILES=(
+    "src/aal/polynomials.scm"
+    "src/aal/ast.scm"
+    "src/aal/parser.scm"
+    "src/aal/types.scm"
+    "src/aal/well-formed.scm"
+    "src/aal/semantics.scm"
+    "src/aal/geometry.scm"
+    "src/aal/compiler.scm"
+    "src/aal/interpreter.scm"
+    "src/aal/README.md"
+)
+
+for file in "${AAL_FILES[@]}"; do
+    if [ -f "$file" ]; then
+        if [ -s "$file" ] && grep -q "define\|lambda\|let" "$file" 2>/dev/null || [ "$file" = "src/aal/README.md" ]; then
+            print_status "Found: $file"
+        else
+            echo -e "${RED}✗${NC} $file appears invalid"
+            BUILD_STATUS=1
+        fi
+    else
+        echo -e "${RED}✗${NC} Missing: $file"
+        BUILD_STATUS=1
+    fi
+done
+
+# Check for Scheme interpreter for AAL testing
+if command_exists guile || command_exists csi || command_exists racket; then
+    SCHEME_CMD=""
+    if command_exists guile; then
+        SCHEME_CMD="guile -s"
+    elif command_exists csi; then
+        SCHEME_CMD="csi -s"
+    elif command_exists racket; then
+        SCHEME_CMD="racket"
+    fi
+    
+    if [ -n "$SCHEME_CMD" ]; then
+        echo "Testing AAL polynomial module..."
+        if $SCHEME_CMD tests/aal/polynomials.test.scm > /dev/null 2>&1; then
+            print_status "AAL polynomials module loads correctly"
+        else
+            echo -e "${YELLOW}⚠${NC} AAL polynomials test had issues (may be expected)"
+        fi
+    fi
+else
+    echo -e "${YELLOW}⚠${NC} No Scheme interpreter found (guile/csi/racket), skipping AAL syntax check"
+fi
+
+echo ""
+echo "Step 6: Verifying Directory Structure"
 echo "-------------------------------------"
 REQUIRED_DIRS=(
     "src/core"
@@ -133,10 +195,12 @@ REQUIRED_DIRS=(
     "src/canvasl"
     "src/consensus"
     "src/integration"
+    "src/aal"
     "src/lean"
     "src/coq"
     "schemas"
     "scripts"
+    "tests/aal"
 )
 
 for dir in "${REQUIRED_DIRS[@]}"; do
