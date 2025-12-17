@@ -6,13 +6,21 @@
 (load "module-loader.scm")
 
 ;; Load AAL integration (if available)
-;; Note: file-exists? may not be available in all Scheme implementations
-;; Try to load and catch errors
 (let ((load-result (catch #t
                         (lambda () (load "bicf-to-aal.scm") #t)
                         (lambda (key . args) #f))))
   (if (not load-result)
-      (display "Note: AAL integration not loaded\n"))))
+      (display "Note: AAL integration not loaded\n")))
+
+;; Load NRR integration (if available)
+(let ((load-result (catch #t
+                        (lambda ()
+                          (load "../nrr/storage.scm")
+                          (load "../nrr/log.scm")
+                          #t)
+                        (lambda (key . args) #f))))
+  (if (not load-result)
+      (display "Note: NRR integration not loaded\n"))))
 
 ;; Initialize system
 (define (init-bicf-system)

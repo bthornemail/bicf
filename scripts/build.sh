@@ -65,6 +65,10 @@ SCHEME_FILES=(
     "src/aal/geometry.scm"
     "src/aal/compiler.scm"
     "src/aal/interpreter.scm"
+    "src/nrr/hash.scm"
+    "src/nrr/storage.scm"
+    "src/nrr/log.scm"
+    "src/nrr/replay.scm"
 )
 
 for file in "${SCHEME_FILES[@]}"; do
@@ -196,11 +200,13 @@ REQUIRED_DIRS=(
     "src/consensus"
     "src/integration"
     "src/aal"
+    "src/nrr"
     "src/lean"
     "src/coq"
     "schemas"
     "scripts"
     "tests/aal"
+    "tests/nrr"
 )
 
 for dir in "${REQUIRED_DIRS[@]}"; do
