@@ -31,6 +31,23 @@
     "shadow-cljs": "^2.25.10",
     "esbuild": "^0.19.0"
   },
+  "author": {
+    "name": "Brian Thorne",
+    "email": "bthornemail@gmail.com",
+    "url": "https://github.com/bthornemail"
+  },
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bthornemail/bicf.git"
+  },
+  "funding": {
+    "type": "individual",
+    "url": [
+      "https://cash.app/$brianthorne",
+      "https://venmo.com/u/brianthorne"
+    ]
+  },
   "files": [
     "src/**",
     "schemas/**",

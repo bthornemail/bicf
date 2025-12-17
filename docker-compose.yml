@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  bicf-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:latest
+    container_name: bicf-core
+    volumes:
+      - ./src:/app/src:ro
+      - ./schemas:/app/schemas:ro
+    environment:
+      - BICF_ENV=development
+    command: ["help"]
+
+  canvasl-interpreter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:latest
+    container_name: canvasl-interpreter
+    volumes:
+      - ./src:/app/src:ro
+      - ./schemas:/app/schemas:ro
+      - ./examples:/app/examples:ro
+    environment:
+      - BICF_ENV=development
+    command: ["interpreter", "/app/examples/trace.jsonl"]
+
