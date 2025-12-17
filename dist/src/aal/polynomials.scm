@@ -73,7 +73,7 @@
                                  (list-ref p2-trimmed i)
                                  #f)))
                      (loop (+ i 1)
-                           (cons (xor c1 c2) result))))))))
+                           (cons (xor c1 c2) result))))))))))
 
 ;; Helper: XOR for booleans
 (define (xor a b)
@@ -314,7 +314,7 @@
                   (+ power 1)
                   (if (car lst)
                       (+ sum (expt 2 power))
-                      sum)))))))
+                      sum))))))
 
 ;; ============================================================
 ;; End of Polynomial Algebra

@@ -73,7 +73,7 @@
                                  (list-ref p2-trimmed i)
                                  #f)))
                      (loop (+ i 1)
-                           (cons (xor c1 c2) result))))))))
+                           (cons (xor c1 c2) result))))))))))
 
 ;; Helper: XOR for booleans
 (define (xor a b)
@@ -112,7 +112,7 @@
                                                                   (list-ref p2-trimmed k))))
                                             (inner-loop (+ j 1) sum)))))))
                            (loop (+ i 1)
-                                 (cons coeff result))))))))))
+                                 (cons coeff result))))))))))))
 
 ;; -----------------------------
 ;; Shift Operations
@@ -221,7 +221,7 @@
                       (let ((b-trim (trim b)))
                         (if (null? b-trim)
                             a
-                            (loop b-trim (poly-mod a b))))))))))))
+                            (loop b-trim (poly-mod a b))))))))))
 
 ;; poly-lcm: Least common multiple
 ;; Using: P × Q = GCD(P,Q) × LCM(P,Q)
@@ -314,7 +314,7 @@
                   (+ power 1)
                   (if (car lst)
                       (+ sum (expt 2 power))
-                      sum)))))))
+                      sum))))))
 
 ;; ============================================================
 ;; End of Polynomial Algebra
