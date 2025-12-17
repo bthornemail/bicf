@@ -38,7 +38,8 @@ This repository contains a **BICF (Boundary–Interior Combinatorial Framework) 
 - ✅ **BICF system coordination** with module loading (`bicf-system.scm`, `module-loader.scm`)
 - ✅ **CanvasL execution bridge** with formal interpreter
 - ✅ **Production-ready error handling** and logging
-- ⚠️ **Assembly language generation** - Planned (AAL specification documented in `dev-docs/Assembly–Algebra Language v3.2/`)
+- ✅ **BICF-to-AAL compiler** (`bicf-to-aal.scm`) - Transform boundaries to AAL programs
+- ✅ **Assembly language generation** (`assembly-generator.scm`) - Generate executable assembly from AAL
 
 ### 6. **CanvasL Reference Interpreter** (`src/canvasl/`)
 - ✅ **R5RS Scheme implementation** of CanvasL-POLY v1.0 (`interpreter.scm`)
@@ -47,18 +48,18 @@ This repository contains a **BICF (Boundary–Interior Combinatorial Framework) 
 - ✅ **Error handling** with structured reporting
 - ✅ **Integration with BICF modules** for unified execution
 
-### 7. **AAL (Assembly–Algebra Language)** (`dev-docs/Assembly–Algebra Language v3.2/`)
-- ✅ **Complete formal specification** v3.2 (documented)
+### 7. **AAL (Assembly–Algebra Language)** (`src/aal/`)
+- ✅ **Complete formal specification** v3.2 (documented in `dev-docs/Assembly–Algebra Language v3.2/`)
 - ✅ **Coq formalization** with 127 lemmas and 42 theorems verified
-- ✅ **EBNF grammar** and complete language definition
-- ✅ **Polynomial algebra** over $\mathbb{F}_2[x]$ with proven laws
-- ✅ **Graded modal type system** (D0-D10) with soundness proofs
-- ✅ **Small-step semantics** with determinism guarantees
-- ✅ **Geometric semantics** (D9: Fano Plane mapping)
-- ✅ **Node-to-Assembly mapping** documentation
-- ⚠️ **AAL compiler/interpreter** - Planned (see [Implementation Plan](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md))
-- ⚠️ **BICF-to-AAL compiler** - Planned
-- ⚠️ **Assembly code generator** - Planned
+- ✅ **AAL compiler/interpreter** (`compiler.scm`, `interpreter.scm`) - Full implementation
+- ✅ **EBNF parser** (`parser.scm`) - LL(1) recursive descent parser
+- ✅ **Polynomial algebra** (`polynomials.scm`) - F₂[x] operations with proven laws
+- ✅ **Graded modal type system** (`types.scm`) - D0-D10 with soundness proofs
+- ✅ **Small-step semantics** (`semantics.scm`) - Deterministic execution model
+- ✅ **Geometric semantics** (`geometry.scm`) - D9 Fano Plane mapping
+- ✅ **Well-formedness** (`well-formed.scm`) - Syntactic validation
+- ✅ **Assembly generator** (`assembly-generator.scm`) - AAL to assembly code
+- ✅ **Register allocation** (`register-alloc.scm`) - Optimized register usage
 
 ## 🏗️ **Production Infrastructure**
 

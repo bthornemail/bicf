@@ -22,6 +22,45 @@
 
 ---
 
+## Repository Abstraction
+
+The BICF Production System uses a **Native Repository Runtime (NRR)** as its minimal repository abstraction. CanvasL-POLY does **not depend on Git**; Git is treated as an optional reference implementation.
+
+### NRR Minimal Interface
+
+NRR provides a minimal, portable repository abstraction suitable for embedded systems, microcontrollers, and resource-constrained environments:
+
+```text
+Repository :=
+  {
+    put(content) -> ref      # Store content, return content-addressed reference
+    get(ref) -> content      # Retrieve content by reference
+    append(entry)            # Append entry to append-only log
+    log() -> [entry₀ … entryₙ]  # Retrieve all log entries
+  }
+```
+
+### Key Properties
+
+- **Content-Addressed Storage:** References are computed from content hashes (SHA-256, BLAKE3, or CRC32)
+- **Append-Only Log:** Deterministic replay from log entries
+- **Binary-Safe:** Works with binary data, suitable for MCUs
+- **MCU-Friendly:** No heap required, suitable for ESP32 and embedded Linux
+- **Git-Compatible:** Optional Git adapter provides transport/replication layer
+
+### Git Relationship
+
+Git is **optional** and serves as:
+- A **transport** mechanism (optional)
+- A **replication layer** (optional)
+- A **human UI** (optional)
+
+The system works **without Git** using NRR's minimal interface. Git adapters can be implemented as thin layers mapping NRR operations to Git commands.
+
+**Reference:** `dev-docs/Native Repository Runtime.md`
+
+---
+
 ## Boundary Constraints
 
 ### MUST (Affirmative Constraints)
@@ -35,6 +74,8 @@
 - [x] Maintain CanvasL-POLY execution semantics (JSONL format, phase monotonicity)
 - [x] Preserve polynomial algebra semantics in AAL modules (F₂[x] operations)
 - [x] Respect complexity budgets (FANO O(n²), PCG O(n³), CanvasL O(s))
+- [x] Work with NRR (content-addressed storage + append-only log)
+- [x] Support deterministic replay from NRR log entries
 
 ### MUST NOT (Prohibitive Constraints)
 
@@ -48,6 +89,8 @@
 - [x] Introduce non-R5RS Scheme dependencies
 - [x] Violate CanvasL-POLY JSONL format
 - [x] Break formal verification status (Lean 4, Coq proofs must remain verified)
+- [x] Require Git as a dependency (Git is optional, NRR is the abstraction)
+- [x] Break NRR interface compatibility (must support put, get, append, log)
 
 ---
 
@@ -71,15 +114,18 @@ The BICF Production System implements a formally verified distributed computatio
   - Formal properties must match reference implementation
 
 #### Layer 2 (Core) - Deterministic Algorithms
-- **Components:** `src/core/`, `src/aal/`
+- **Components:** `src/core/`, `src/aal/`, `src/nrr/` (Native Repository Runtime)
 - **Responsibilities:**
   - BICF Core implementation (5 axioms)
   - AAL compiler/interpreter (polynomial algebra, type system, semantics)
   - Deterministic validation algorithms
+  - NRR implementation (content-addressed storage, append-only log)
 - **Invariants:**
   - All functions must be deterministic
   - No random number generation
   - Reproducible execution from logs
+  - NRR must be binary-safe and MCU-friendly
+  - Repository operations must support deterministic replay
 
 #### Layer 3 (API) - Interface Contracts
 - **Components:** `src/canvasl/`, `src/integration/`
@@ -234,6 +280,10 @@ bypass boundary-interior duality (BICF Axiom 1)
 | `parse-aal` | function | stable | Parse AAL program from string |
 | `compile-aal` | function | stable | Compile AAL program (parse → well-formed → type-check → code-gen) |
 | `interpret-aal` | function | stable | Direct AAL execution with debugging |
+| `nrr-put` | function | stable | Store content and return content-addressed reference |
+| `nrr-get` | function | stable | Retrieve content by reference |
+| `nrr-append` | function | stable | Append entry to append-only log |
+| `nrr-log` | function | stable | Retrieve all log entries for deterministic replay |
 
 ### Required Dependencies
 
@@ -244,6 +294,8 @@ bypass boundary-interior duality (BICF Axiom 1)
 | Lean 4 | Latest | Formal verification (Fano, PCG) | No |
 | Coq | ≥8.15 | Formal verification (Fano, PCG) | No |
 | JSON Schema | Draft 2020-12 | CanvasL JSONL validation | No |
+| Git | Any | Optional transport/replication layer (NRR adapter) | Yes |
+| NRR | Native | Content-addressed storage + append-only log | No |
 
 ### Data Contracts
 
@@ -372,9 +424,13 @@ tests/
   "layer": "mixed",
   "constraints": "boundary-interior-duality,explicit-realization,non-canonicity,determinism",
   "created": "2024-12-19T00:00:00Z",
-  "rfc_compliance": ["RFC-BICF-CANVASL-POLY-001", "RFC-0001", "RFC-0002", "RFC-0003"]
+  "rfc_compliance": ["RFC-BICF-CANVASL-POLY-001", "RFC-0001", "RFC-0002", "RFC-0003"],
+  "anchor": "nrr:sha256:abc123...",
+  "repository": "nrr"
 }
 ```
+
+**Note:** The `anchor` field uses NRR content-addressed references (hash-based). Git commit hashes can be used as an optional transport layer, but NRR references are the canonical form.
 
 ### Execution Semantics
 
@@ -409,6 +465,9 @@ tests/
 - **Forward References:** Prevented (no references to future steps)
 - **Polynomial Encoding:** State evolution via `A*x + b` affine encoders
 - **Boundary Validation:** FANO and PCG validation integrated into execution
+- **NRR Integration:** CanvasL log entries map to NRR log entries
+- **Content Addressing:** Boundary anchors use NRR content-addressed references (hash-based)
+- **Deterministic Replay:** CanvasL execution uses NRR's `log()` for replay from append-only log
 
 ---
 
@@ -499,11 +558,14 @@ This repository MAY be merged IF:
 
 All changes MUST be:
 
-- **Committed with AGENTS.md boundary hash** (for boundary integrity)
+- **Appended to NRR log** with content-addressed reference (for boundary integrity)
 - **Linked to CanvasL execution phase** (if applicable)
-- **Documented in commit message** with BICF justification
+- **Documented in NRR log entry** with BICF justification
 - **Validated pre-merge** (tests, formal proofs, schema validation)
 - **Referenced in RFC updates** (if BICF axioms or interfaces change)
+- **Boundary hash computed from content** (NRR-style content addressing)
+
+**Note:** Git commits are optional. The canonical audit trail is the NRR append-only log. Git can serve as an optional transport/replication layer, but NRR log entries are the source of truth.
 
 ### Repository-Specific Change Process
 
@@ -546,8 +608,9 @@ All changes MUST be:
 4. **RFC-0003: CanvasL-POLY** - Deterministic Boundary–Interior Computation Standard (`dev-docs/RFC-BICF-CANVASL-POLY-001/05-canvasl-poly/RFC-0003-CanvasL-POLY.md`)
 5. **CanvasL JSONL Schema** - `schemas/canvasl-schema.json`
 6. **AAL v3.2 Specification** - `dev-docs/Assembly–Algebra Language v3.2/`
-7. **Universal Layer Model** - Component classification (this document)
-8. **Production Documentation** - `production-docs/` (architecture, API reference, implementation guide)
+7. **Native Repository Runtime (NRR)** - `dev-docs/Native Repository Runtime.md` - Minimal repository abstraction (content-addressed storage + append-only log)
+8. **Universal Layer Model** - Component classification (this document)
+9. **Production Documentation** - `production-docs/` (architecture, API reference, implementation guide)
 
 ---
 
@@ -567,12 +630,20 @@ This boundary contract is:
 - ✅ CanvasL Interpreter: Complete and verified
 - ✅ AAL Implementation: Complete (Phase 1-2), integration planned
 - ✅ Formal Verification: Complete (Lean 4, Coq proofs verified)
+- ✅ NRR: Native Repository Runtime specification complete
+
+**Deployment Targets:**
+- ✅ **Desktop/Linux:** Full R5RS Scheme implementation
+- ✅ **Embedded Systems:** NRR enables ESP32, WASM, and microcontroller deployment
+- ✅ **MCU-Friendly:** Binary-safe, constant memory (polynomial state encoding)
+- ✅ **Git-Optional:** System works without Git; Git serves as optional transport layer
 
 **Next steps:**
 1. Complete AAL-BICF integration (Phase 3)
 2. Add additional boundary modules following FANO pattern
 3. Extend CanvasL operations while maintaining JSONL format
 4. Enhance formal verification coverage
+5. Implement NRR for embedded targets (ESP32, WASM)
 
 ---
 
