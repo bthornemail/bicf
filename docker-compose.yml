@@ -6,27 +6,58 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runtime
-    image: bicf/production:latest
-    container_name: bicf-core
+    image: bicf/production:dev
+    container_name: bicf-core-dev
     volumes:
-      - ./src:/app/src:ro
+      - ./src:/app/src:rw
       - ./schemas:/app/schemas:ro
+      - ./tests:/app/tests:ro
+      - ./examples:/app/examples:ro
     environment:
       - BICF_ENV=development
+      - BICF_LOG_LEVEL=debug
     command: ["help"]
+    healthcheck:
+      test: ["CMD", "guile", "-c", "(display \"ok\")"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   canvasl-interpreter:
     build:
       context: .
       dockerfile: Dockerfile
       target: runtime
-    image: bicf/production:latest
-    container_name: canvasl-interpreter
+    image: bicf/production:dev
+    container_name: canvasl-interpreter-dev
     volumes:
-      - ./src:/app/src:ro
+      - ./src:/app/src:rw
       - ./schemas:/app/schemas:ro
       - ./examples:/app/examples:ro
     environment:
       - BICF_ENV=development
+      - BICF_LOG_LEVEL=debug
     command: ["interpreter", "/app/examples/trace.jsonl"]
+    depends_on:
+      - bicf-core
+
+  # Development test runner
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:dev
+    container_name: bicf-test-runner
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+      - ./schemas:/app/schemas:ro
+    environment:
+      - BICF_ENV=development
+      - BICF_LOG_LEVEL=info
+    command: ["test"]
+    depends_on:
+      - bicf-core
 

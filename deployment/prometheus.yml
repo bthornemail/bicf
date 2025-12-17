@@ -1,0 +1,28 @@
+# Prometheus configuration for BICF Production System
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'bicf-production'
+    environment: 'production'
+
+scrape_configs:
+  - job_name: 'bicf-production'
+    static_configs:
+      - targets: ['bicf-production:9091']
+        labels:
+          service: 'bicf-core'
+          module: 'production'
+
+  - job_name: 'bicf-canvasl'
+    static_configs:
+      - targets: ['canvasl-interpreter:9091']
+        labels:
+          service: 'canvasl'
+          module: 'interpreter'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+

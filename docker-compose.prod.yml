@@ -12,7 +12,59 @@ services:
     volumes:
       - ./src:/app/src:ro
       - ./schemas:/app/schemas:ro
+      - bicf-data:/app/data
     environment:
       - BICF_ENV=production
+      - BICF_LOG_LEVEL=info
     command: ["help"]
+    healthcheck:
+      test: ["CMD", "guile", "-c", "(display \"ok\")"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bicf-network
+
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bicf-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./deployment/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - bicf-network
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bicf-grafana
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./deployment/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - bicf-network
+
+volumes:
+  bicf-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  bicf-network:
+    driver: bridge
 

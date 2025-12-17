@@ -13,6 +13,8 @@ case "$1" in
     echo "  interpreter       - Run CanvasL interpreter"
     echo "  validate          - Validate boundaries"
     echo "  test              - Run test suite"
+    echo "  health            - Health check endpoint"
+    echo "  metrics           - Prometheus metrics endpoint"
     ;;
   interpreter)
     shift
@@ -29,6 +31,14 @@ case "$1" in
   test)
     shift
     /app/scripts/test.sh
+    ;;
+  health)
+    shift
+    guile -s /app/deployment/health-endpoint.scm health
+    ;;
+  metrics)
+    shift
+    guile -s /app/deployment/health-endpoint.scm metrics
     ;;
   *)
     exec "$@"

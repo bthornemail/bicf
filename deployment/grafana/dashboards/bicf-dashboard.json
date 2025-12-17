@@ -1,0 +1,35 @@
+{
+  "dashboard": {
+    "title": "BICF Production System",
+    "panels": [
+      {
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"bicf-production\"}"
+          }
+        ]
+      },
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(bicf_requests_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(bicf_errors_total[5m])"
+          }
+        ]
+      }
+    ]
+  }
+}
+
