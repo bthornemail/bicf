@@ -5,6 +5,15 @@
 
 (load "module-loader.scm")
 
+;; Load AAL integration (if available)
+;; Note: file-exists? may not be available in all Scheme implementations
+;; Try to load and catch errors
+(let ((load-result (catch #t
+                        (lambda () (load "bicf-to-aal.scm") #t)
+                        (lambda (key . args) #f))))
+  (if (not load-result)
+      (display "Note: AAL integration not loaded\n"))))
+
 ;; Initialize system
 (define (init-bicf-system)
   (display "Initializing BICF System...\n")
@@ -42,7 +51,32 @@
     ((transform) (apply transform args))
     ((project) (apply project args))
     ((valid?) (apply valid? args))
+    ((generate-aal) (apply bicf-generate-aal args))
     (else (error "Unknown operation" op))))
+
+;; generate-aal: Generate AAL program from boundary
+;; This ensures bicf-to-aal.scm is loaded and calls its generate-aal function
+(define (bicf-generate-aal boundary)
+  (if (not *initialized*)
+      (init-bicf-system))
+  ;; Load bicf-to-aal if not already loaded
+  (if (not (defined? 'boundary-to-aal))
+      (let ((load-result (catch #t
+                              (lambda () (load "bicf-to-aal.scm") #t)
+                              (lambda (key . args) #f))))
+        (if (not load-result)
+            (error "bicf-generate-aal: failed to load AAL integration"))))
+  ;; Now call generate-aal from bicf-to-aal.scm
+  (if (defined? 'generate-aal)
+      (generate-aal boundary)
+      (error "bicf-generate-aal: generate-aal function not available")))
+
+;; Helper: check if symbol is defined
+(define (defined? sym)
+  (let ((result (catch #t
+                     (lambda () (eval sym))
+                     (lambda (key . args) #f))))
+    (not (eq? result #f))))
 
 ;; CLI interface helper
 (define (bicf-cli args)
@@ -62,5 +96,9 @@
           ((get) (if (null? rest-args)
                     (error "get requires boundary-id")
                     (display (get-boundary (car rest-args)))))
+          ((generate-aal) (if (null? rest-args)
+                             (error "generate-aal requires boundary")
+                             (let ((boundary (car rest-args)))
+                               (display (bicf-generate-aal boundary)))))
           (else (error "Unknown command" command))))))
 
