@@ -112,7 +112,7 @@
                                                                   (list-ref p2-trimmed k))))
                                             (inner-loop (+ j 1) sum)))))))
                            (loop (+ i 1)
-                                 (cons coeff result))))))))))
+                                 (cons coeff result))))))))))))
 
 ;; -----------------------------
 ;; Shift Operations
@@ -221,7 +221,7 @@
                       (let ((b-trim (trim b)))
                         (if (null? b-trim)
                             a
-                            (loop b-trim (poly-mod a b))))))))))))
+                            (loop b-trim (poly-mod a b)))))))))))
 
 ;; poly-lcm: Least common multiple
 ;; Using: P × Q = GCD(P,Q) × LCM(P,Q)
@@ -240,7 +240,7 @@
                       '()
                       ;; LCM = (P × Q) / GCD
                       (let ((prod (poly-mul p-trimmed q-trimmed)))
-                        (poly-div prod gcd-pq))))))))))
+                        (poly-div prod gcd-pq)))))))))
 
 ;; -----------------------------
 ;; Verification Functions
