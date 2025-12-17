@@ -1,8 +1,8 @@
 # BICF Production System
 
-## Status: Production-Ready Implementation
+## Status: Formally Verified Specification with Reference Implementation
 
-This repository contains a **production-ready BICF (Boundary–Interior Combinatorial Framework) implementation** based on RFC-BICF-CANVASL-POLY-001. The system includes formal verification, reference implementations, and production infrastructure.
+This repository contains a **BICF (Boundary–Interior Combinatorial Framework) implementation** based on RFC-BICF-CANVASL-POLY-001. The system includes formal verification, reference implementations, and comprehensive documentation. See [`production-docs/validation-summary.md`](production-docs/validation-summary.md) for detailed status assessment.
 
 ## ✅ **Core System Components**
 
@@ -32,13 +32,13 @@ This repository contains a **production-ready BICF (Boundary–Interior Combinat
 - ✅ **Pairwise constraint evaluation** with explicit algorithms
 - ✅ **Conflict detection and reporting** with structured artifacts
 - ✅ **Integration with FANO boundary** for guaranteed overlap
-- ⚠️ **Assembly language target generation** - Planned
+- ⚠️ **Assembly language target generation** - Planned (see [Implementation Plan](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md))
 
 ### 5. **Integration Layer** (`src/integration/`)
 - ✅ **BICF system coordination** with module loading (`bicf-system.scm`, `module-loader.scm`)
 - ✅ **CanvasL execution bridge** with formal interpreter
 - ✅ **Production-ready error handling** and logging
-- ⚠️ **Assembly language generation** - Planned
+- ⚠️ **Assembly language generation** - Planned (AAL specification documented in `dev-docs/Assembly–Algebra Language v3.2/`)
 
 ### 6. **CanvasL Reference Interpreter** (`src/canvasl/`)
 - ✅ **R5RS Scheme implementation** of CanvasL-POLY v1.0 (`interpreter.scm`)
@@ -46,6 +46,19 @@ This repository contains a **production-ready BICF (Boundary–Interior Combinat
 - ✅ **PCG verification** with exhaustive checking
 - ✅ **Error handling** with structured reporting
 - ✅ **Integration with BICF modules** for unified execution
+
+### 7. **AAL (Assembly–Algebra Language)** (`dev-docs/Assembly–Algebra Language v3.2/`)
+- ✅ **Complete formal specification** v3.2 (documented)
+- ✅ **Coq formalization** with 127 lemmas and 42 theorems verified
+- ✅ **EBNF grammar** and complete language definition
+- ✅ **Polynomial algebra** over $\mathbb{F}_2[x]$ with proven laws
+- ✅ **Graded modal type system** (D0-D10) with soundness proofs
+- ✅ **Small-step semantics** with determinism guarantees
+- ✅ **Geometric semantics** (D9: Fano Plane mapping)
+- ✅ **Node-to-Assembly mapping** documentation
+- ⚠️ **AAL compiler/interpreter** - Planned (see [Implementation Plan](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md))
+- ⚠️ **BICF-to-AAL compiler** - Planned
+- ⚠️ **Assembly code generator** - Planned
 
 ## 🏗️ **Production Infrastructure**
 
@@ -67,7 +80,7 @@ This repository contains a **production-ready BICF (Boundary–Interior Combinat
 ### ✅ **Formal Compliance**
 - **RFC 0001**: BICF Core axioms fully implemented
 - **RFC 0002**: FANO PG(2,2) boundary with combinatorial invariants
-- **RFC 0003**: AAL mapping for executable constraints
+- **RFC 0003**: AAL mapping specification documented (implementation planned)
 - **RFC 0004**: Optional octonion orientation module
 - **RFC 0005**: PCG-based deterministic consensus
 - **RFC 0006**: Automorphism selection and interoperability
@@ -82,58 +95,135 @@ This repository contains a **production-ready BICF (Boundary–Interior Combinat
 - **Monitoring and observability** with full system visibility
 
 ### ✅ **Integration with Existing Systems**
-- **Enhanced LOGOS client** with BICF capabilities
 - **CanvasL execution support** with JSONL interpreter
-- **Assembly language generation** from BICF boundaries
 - **Git-based persistence** with commit anchoring
 - **API layer** for external system integration
 
+### ⚠️ **Planned Features**
+- **Assembly language generation** from BICF boundaries (AAL specification complete, implementation planned)
+- **AAL compiler/interpreter** (see [Implementation Plan](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md))
+- **BICF-to-AAL transformation** layer
+
 ## 🎯 **Usage Examples**
 
-### Basic BICF Operations
-```bash
-# Validate BICF compliance
-node dist/test-core.js
+### Quick Start
 
-# Create FANO boundary and verify PCG
-node dist/test-fano.js
+For detailed usage instructions, see the [Usage Guide](production-docs/usage-guide.md).
 
-# Execute CanvasL with PCG verification
-node dist/canvasl-cli.js interpret examples/fano-pcg.jsonl
+### Basic BICF Operations (R5RS Scheme)
+```scheme
+;; Load BICF core
+(load "src/core/bicf-core.scm")
 
-# Run consensus with merge validation
-node dist/pcg-cli.js consensus examples/fano-merge.jsonl
+;; Create and validate a boundary
+(define my-boundary '((id . "test-boundary")))
+(valid? (realize '((choice-id . "default")) my-boundary) my-boundary)
+
+;; Load FANO checker
+(load "src/fano/fano-checker.scm")
+
+;; Load PCG validator
+(load "src/consensus/pcg-validator.scm")
+
+;; Execute CanvasL
+(load "src/canvasl/interpreter.scm")
 ```
 
-### System Integration
+### Using the CLI
 ```bash
-# Start enhanced LOGOS client with BICF
-node dist/logos-client.js bicf-status
+# Initialize system
+guile -s src/index.scm init
 
+# Get help
+guile -s src/index.scm help
+```
+
+### Docker Usage
+```bash
+# Build Docker image
+docker build -t bicf/production:latest .
+
+# Run container
+docker run bicf/production:latest help
+```
+
+### Future: Assembly Generation (Planned)
+```bash
+# Once AAL compiler is implemented:
 # Generate assembly from BICF boundary
-node dist/logos-client.js bicf-generate-assembly fano-boundary
+scheme src/integration/bicf-system.scm generate-assembly fano-boundary
 
 # Execute CanvasL program with assembly output
-node dist/logos-client.js canvasl-run examples/program.jsonl --output assembly
+scheme src/canvasl/interpreter.scm --backend aal examples/program.jsonl
 ```
 
-## 📋 **Next Steps**
+For more examples and advanced usage patterns, see the [Usage Guide](production-docs/usage-guide.md).
 
-1. **Complete CanvasL reference interpreter** with full BICF integration
-2. **Add comprehensive property-based testing** for all modules
-3. **Implement CI/CD pipeline** with automated testing and deployment
-4. **Create formal verification suite** for academic publication
-5. **Set up monitoring and observability** for production operations
+## 📋 **Implementation Status & Next Steps**
 
-## 🏆 **Production Status**
+### ✅ **Completed**
+- BICF Core implementation with all 5 axioms
+- FANO boundary module with PG(2,2) structure
+- PCG consensus module with deterministic verification
+- CanvasL JSONL schema and interpreter
+- Lean 4 formal verification (complete proofs)
+- AAL v3.2 formal specification (documented)
 
-This system is **production-ready** and provides:
+### ⚠️ **In Progress / Planned**
+See [`dev-docs/BICF Production System - Full Implementation Plan.md`](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md) for detailed roadmap:
 
-- **Formally verified** distributed computation framework
-- **Deterministic consensus** without central authority
-- **Machine-checkable** constraint satisfaction
-- **Comprehensive auditability** with full reproducibility
-- **Modular extensibility** for future enhancements
-- **Industrial-grade deployment** with monitoring and security
+1. **AAL Compiler/Interpreter** - Implement AAL v3.2 specification
+2. **BICF-to-AAL Compiler** - Transform boundaries to AAL programs
+3. **Assembly Code Generator** - Generate executable assembly from AAL
+4. **Production Infrastructure** - Docker, CI/CD, monitoring
+5. **Comprehensive Testing** - Unit, integration, property-based tests
 
-The BICF implementation successfully transforms your theoretical framework into a practical, deployable system suitable for both academic research and industrial distributed applications.
+### 📚 **Documentation**
+
+#### Production Documentation (`production-docs/`)
+- **API Reference**: [`production-docs/api-reference.md`](production-docs/api-reference.md) - Complete API documentation for all modules
+- **Implementation Guide**: [`production-docs/implementation-guide.md`](production-docs/implementation-guide.md) - Detailed implementation information
+- **Architecture**: [`production-docs/architecture.md`](production-docs/architecture.md) - System architecture and component interactions
+- **Usage Guide**: [`production-docs/usage-guide.md`](production-docs/usage-guide.md) - Step-by-step usage instructions and examples
+- **Formal Verification**: [`production-docs/formal-verification.md`](production-docs/formal-verification.md) - Lean 4 and Coq verification status
+- **Validation Reports**: [`production-docs/validation-report.md`](production-docs/validation-report.md) - Detailed validation assessment
+- **Validation Summary**: [`production-docs/validation-summary.md`](production-docs/validation-summary.md) - Quick validation status reference
+
+#### Development Documentation (`dev-docs/`)
+- **Implementation Plan**: [`dev-docs/BICF Production System - Full Implementation Plan.md`](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md)
+- **AAL Specification**: [`dev-docs/Assembly–Algebra Language v3.2/`](dev-docs/Assembly–Algebra%20Language%20v3.2/)
+- **RFC Documents**: [`dev-docs/RFC-BICF-CANVASL-POLY-001/`](dev-docs/RFC-BICF-CANVASL-POLY-001/) - Complete RFC decomposition
+
+## 🏆 **Current Status**
+
+This system provides:
+
+- **Formally verified** distributed computation framework (Lean 4 proofs complete)
+- **Deterministic consensus** without central authority (PCG implementation)
+- **Machine-checkable** constraint satisfaction (BICF core with formal properties)
+- **Comprehensive documentation** with full specifications
+- **Modular architecture** ready for extension
+- **Reference implementations** for core components
+
+**Status Assessment:** See [`production-docs/validation-summary.md`](production-docs/validation-summary.md) for detailed validation results.
+
+**Implementation Roadmap:** The complete implementation plan, including AAL compiler and assembly generation, is documented in [`dev-docs/BICF Production System - Full Implementation Plan.md`](dev-docs/BICF%20Production%20System%20-%20Full%20Implementation%20Plan.md).
+
+## 📖 **Getting Started**
+
+1. **Read the Documentation:**
+   - Start with the [Architecture](production-docs/architecture.md) for system overview
+   - Check the [Usage Guide](production-docs/usage-guide.md) for installation and examples
+   - Refer to the [API Reference](production-docs/api-reference.md) for detailed function documentation
+
+2. **Explore the Code:**
+   - BICF Core: `src/core/bicf-core.scm`
+   - FANO Module: `src/fano/fano-checker.scm`
+   - PCG Module: `src/consensus/pcg-validator.scm`
+   - CanvasL Interpreter: `src/canvasl/interpreter.scm`
+
+3. **Verify Formal Proofs:**
+   - Lean 4: `src/lean/fano_pcg.lean` (see [Formal Verification](production-docs/formal-verification.md))
+   - Coq: `src/coq/Fano_PCG.v` (see [Formal Verification](production-docs/formal-verification.md))
+
+The BICF framework provides a solid theoretical foundation with reference implementations, suitable for academic research and as a base for production deployment after completing the planned implementation phases.
