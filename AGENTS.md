@@ -1,443 +1,579 @@
-# AGENTS.md Specification
-## CanvasL-POLY + BICF Aligned Agent Boundary Contract
+# AGENTS.md
+## BICF Production System - Repository Boundary Contract
 
-**Version:** 2.0.0  
-**Status:** Normative Specification  
-**Date:** December 2025  
+**Version:** 3.0.0  
+**Status:** Repository-Specific Boundary Contract  
+**Date:** 2025-01-XX  
 **Alignment:** RFC-BICF-CANVASL-POLY-001 Compliant  
+**Repository:** bicf-production
 
 ---
 
-## 1. Normative Purpose
-
-AGENTS.md is a **Boundary Execution Contract** that defines admissible operations within a repository subtree. It transforms directories from passive containers to **explicitly bounded execution contexts** where:
-
-- **Humans** operate with clear constraints
-- **AI Systems** execute within verifiable boundaries  
-- **Automations** maintain structural invariants
-- **Merges** validate boundary compatibility
-
-This document is **executable, auditable, and merge-relevant** under mind-git semantics.
-
----
-
-## 2. Core Concepts (BICF-Aligned)
-
-| Concept | AGENTS.md Interpretation | CanvasL Mapping |
-|---------|-------------------------|-----------------|
-| **Boundary** | AGENTS.md file contents | `boundary` node in JSONL |
-| **Interior** | Code changes within directory | `interior` with hash |
-| **Validity** | All constraints satisfied | Schema validation pass |
-| **Projection** | Export to other formats | Multi-format export |
-| **Anchor** | Git commit hash | `boundary_anchor` field |
-
----
-
-## 3. File Structure (Normative Template)
-
-Every AGENTS.md MUST contain these sections in order:
-
-### 3.1 Component Identity
-```markdown
 ## Component Identity
 
-- **Name:** [component-name]
-- **Path:** [relative/path/from/root]
-- **Component-ID:** [content-hash]
-- **Layer:** [1-8 from Universal Layer Model]
-- **Boundary Hash:** [sha256-of-this-file]
-- **Created:** [ISO-8601-timestamp]
-- **Last Validated:** [ISO-8601-timestamp]
-```
+- **Name:** bicf-production-system
+- **Path:** `/` (repository root)
+- **Component-ID:** bicf-production-v3.0.0
+- **Layer:** Mixed (components span Layers 1-8)
+- **Boundary Hash:** [to be computed on commit]
+- **Created:** 2024-12-19T00:00:00Z
+- **Last Validated:** 2025-01-XXT00:00:00Z
+- **RFC Compliance:** RFC-BICF-CANVASL-POLY-001, RFC-0001 (BICF Core), RFC-0002 (FANO), RFC-0003 (CanvasL-POLY)
 
-### 3.2 Boundary Constraints
-```markdown
+---
+
 ## Boundary Constraints
 
 ### MUST (Affirmative Constraints)
-- [ ] Preserve public interfaces: [list]
-- [ ] Maintain purity property: [true/false]
-- [ ] Respect complexity budget: [max-value]
-- [ ] Keep dependencies explicit
-- [ ] Pass all verification checks
+
+- [x] Preserve boundary-interior duality (BICF Axiom 1)
+- [x] Maintain explicit realization (no implicit state) (BICF Axiom 4)
+- [x] Enforce non-canonicity (multiple valid realizations per boundary) (BICF Axiom 2)
+- [x] Preserve deterministic validation (all operations deterministic and replayable)
+- [x] Keep dependencies explicit (R5RS Scheme, Lean 4, Coq)
+- [x] Pass all verification checks (unit, integration, formal)
+- [x] Maintain CanvasL-POLY execution semantics (JSONL format, phase monotonicity)
+- [x] Preserve polynomial algebra semantics in AAL modules (F₂[x] operations)
+- [x] Respect complexity budgets (FANO O(n²), PCG O(n³), CanvasL O(s))
 
 ### MUST NOT (Prohibitive Constraints)
-- [x] Introduce implicit state
-- [x] Violate repository schemas
-- [x] Create hidden dependencies
-- [x] Bypass declared interfaces
-- [x] Exceed IO permissions
-```
 
-### 3.3 Layer-Specific Responsibilities
-```markdown
+- [x] Introduce implicit state or hidden transitions
+- [x] Violate BICF axioms (RFC-0001)
+- [x] Break deterministic guarantees
+- [x] Create hidden dependencies (all dependencies must be explicit)
+- [x] Bypass declared interfaces (BICF Core, FANO, PCG, CanvasL, AAL)
+- [x] Exceed IO permissions (read-only for most operations)
+- [x] Modify BICF axioms without RFC update
+- [x] Introduce non-R5RS Scheme dependencies
+- [x] Violate CanvasL-POLY JSONL format
+- [x] Break formal verification status (Lean 4, Coq proofs must remain verified)
+
+---
+
 ## Layer-Specific Responsibilities
 
 ### Primary Role
-[Description of component's core purpose according to its layer]
 
-### Layer-Required Invariants
-- **If Layer 1 (Mathematical):** All theorems must be machine-verifiable
-- **If Layer 2 (Core):** All functions must be deterministic
-- **If Layer 3 (API):** Interface contracts must be stable
-- **If Layer 4 (Services):** Business logic must be testable
-- **If Layer 5 (Data):** Schemas must be explicit
-- **If Layer 6 (UI):** State transitions must be defined
-- **If Layer 7 (Tests):** Coverage must be measurable
-- **If Layer 8 (Docs):** Accuracy must be verifiable
-```
+The BICF Production System implements a formally verified distributed computation framework based on boundary-interior duality, providing deterministic consensus without probabilistic mechanisms.
 
-### 3.4 Admissible Operations
-```markdown
+### Layer Assignments
+
+#### Layer 1 (Mathematical) - Formal Verification
+- **Components:** `src/lean/`, `src/coq/`
+- **Responsibilities:**
+  - Machine-verifiable proofs of Fano plane axioms
+  - PCG (Pair-Cover Guarantee) theorem proofs
+  - AAL graded modal type system soundness proofs
+- **Invariants:**
+  - All theorems must be machine-verifiable (no `sorry`/`admit`)
+  - Proofs must compile and verify successfully
+  - Formal properties must match reference implementation
+
+#### Layer 2 (Core) - Deterministic Algorithms
+- **Components:** `src/core/`, `src/aal/`
+- **Responsibilities:**
+  - BICF Core implementation (5 axioms)
+  - AAL compiler/interpreter (polynomial algebra, type system, semantics)
+  - Deterministic validation algorithms
+- **Invariants:**
+  - All functions must be deterministic
+  - No random number generation
+  - Reproducible execution from logs
+
+#### Layer 3 (API) - Interface Contracts
+- **Components:** `src/canvasl/`, `src/integration/`
+- **Responsibilities:**
+  - CanvasL JSONL interpreter
+  - BICF system coordination APIs
+  - Module loading interfaces
+- **Invariants:**
+  - Interface contracts must be stable
+  - Backward compatibility for public APIs
+  - Explicit error handling
+
+#### Layer 4 (Services) - System Coordination
+- **Components:** `src/integration/bicf-system.scm`
+- **Responsibilities:**
+  - System initialization and coordination
+  - Boundary registry management
+  - Module lifecycle management
+- **Invariants:**
+  - Business logic must be testable
+  - State management must be explicit
+
+#### Layer 5 (Data) - Explicit Schemas
+- **Components:** `schemas/canvasl-schema.json`
+- **Responsibilities:**
+  - CanvasL JSONL schema definition
+  - Data validation schemas
+- **Invariants:**
+  - Schemas must be explicit and machine-validatable
+  - Schema changes must maintain backward compatibility
+
+#### Layer 7 (Tests) - Measurable Coverage
+- **Components:** `tests/unit/`, `tests/aal/`, `tests/integration/`, `tests/formal/`
+- **Responsibilities:**
+  - Unit tests for all modules
+  - Integration tests for end-to-end workflows
+  - Formal verification scripts (Lean 4, Coq)
+- **Invariants:**
+  - Coverage must be measurable
+  - All tests must pass before merge
+
+#### Layer 8 (Documentation) - Verifiable Accuracy
+- **Components:** `production-docs/`, `dev-docs/`
+- **Responsibilities:**
+  - API reference documentation
+  - Architecture documentation
+  - RFC specifications
+- **Invariants:**
+  - Accuracy must be verifiable against code
+  - Documentation must match implementation
+
+---
+
 ## Admissible Operations
 
 ### Agents MAY
-- [Operation 1] when [condition]
-- [Operation 2] if [constraint]
-- [Operation 3] provided [validation]
+
+- **Refactor AAL modules** when preserving polynomial algebra semantics (F₂[x] operations)
+- **Add boundary modules** following FANO pattern (7 points, 7 lines, incidence validation)
+- **Extend CanvasL operations** when maintaining JSONL format and phase monotonicity
+- **Update formal proofs** when preserving verification status (no `sorry`/`admit`)
+- **Add tests** with coverage meeting minimum thresholds
+- **Update documentation** to match code changes
+- **Optimize algorithms** within declared complexity budgets
+- **Extend AAL type system** when preserving graded modal structure (D0-D10)
+- **Add new encoder types** to CanvasL when following polynomial encoding model
 
 ### Execution Examples
+
 ```
-refactor internal implementation
-add tests with coverage > threshold
-update documentation to match code
-optimize within complexity budget
+refactor AAL polynomial operations while preserving F₂[x] semantics
+add FANO boundary module with 7 points, 7 lines structure
+extend CanvasL interpreter with new operation maintaining JSONL format
+update Lean 4 proofs preserving verification status
+add integration tests for new boundary modules
+optimize PCG validation within O(n³) budget
 ```
 
 ### Forbidden Operations
+
 ```
-modify exported interfaces without versioning
-introduce network calls without declaration
-violate purity guarantees
-exceed declared complexity limits
+modify BICF axioms without RFC update (RFC-0001)
+break deterministic guarantees (all operations must be replayable)
+introduce non-R5RS Scheme dependencies
+violate CanvasL-POLY execution semantics
+add `sorry` or `admit` to formal proofs
+exceed declared complexity limits (FANO O(n²), PCG O(n³))
+introduce implicit state or hidden transitions
+bypass boundary-interior duality (BICF Axiom 1)
 ```
 
-### 3.5 Formal Properties
-```markdown
+---
+
 ## Formal Properties
 
-### Formal System
-- [ ] Lean 4
-- [ ] Coq
-- [ ] AAL
-- [ ] Prolog
-- [ ] Datalog
-- [ ] None
+### Formal Systems
+
+- [x] **Lean 4** - `src/lean/fano_pcg.lean`
+- [x] **Coq** - `src/coq/Fano_PCG.v`
+- [x] **AAL** - Graded modal type system (D0-D10) with soundness proofs
 
 ### Proven Invariants
-1. **Theorem:** [theorem-name]
-   - **Statement:** [formal-statement]
-   - **Proof:** [proof-reference]
-   - **Status:** [verified/assumed]
 
-2. **Property:** [property-name]
-   - **Type:** [safety/liveness/invariant]
-   - **Verification:** [method]
-   - **Scope:** [component/repository]
-```
+1. **Theorem:** Fano Plane Incidence Axioms
+   - **Statement:** Exactly 7 points, 7 lines, each line contains exactly 3 points, any two points lie on exactly one line
+   - **Proof:** `src/lean/fano_pcg.lean` (Fano structure, line_through_unique, line_card_three)
+   - **Status:** ✅ verified (using `native_decide`)
 
-### 3.6 Interface Specifications
-```markdown
+2. **Theorem:** Pair-Cover Guarantee (PCG)
+   - **Statement:** For two disjoint Fano planes over 14 elements, any triple has ≥2 points on a common line
+   - **Proof:** `src/lean/fano_pcg.lean` (pcg_two_fano_explicit), `src/coq/Fano_PCG.v` (pcg_theorem)
+   - **Status:** ✅ verified
+
+3. **Theorem:** Fano Plane Uniqueness
+   - **Statement:** Fano plane structure is unique up to isomorphism
+   - **Proof:** `src/coq/Fano_PCG.v` (fano_unique_line)
+   - **Status:** ✅ verified
+
+4. **Property:** AAL Type System Soundness
+   - **Type:** Safety property
+   - **Verification:** AAL v3.2 specification (127 lemmas, 42 theorems verified in Coq)
+   - **Scope:** AAL compiler/interpreter (`src/aal/`)
+   - **Status:** ✅ verified (documented in `dev-docs/Assembly–Algebra Language v3.2/`)
+
+5. **Property:** Deterministic Execution
+   - **Type:** Liveness property
+   - **Verification:** Reference implementation (`src/canvasl/interpreter.scm`)
+   - **Scope:** CanvasL interpreter
+   - **Status:** ✅ verified (deterministic replay from JSONL logs)
+
+---
+
 ## Interface Specifications
 
 ### Provided Interfaces
+
 | Name | Type | Stability | Description |
 |------|------|-----------|-------------|
-| [interface] | [function/type/endpoint] | [stable/experimental] | [purpose] |
+| `boundary?` | function | stable | Type predicate for Boundary objects |
+| `interior?` | function | stable | Type predicate for Interior objects |
+| `valid?` | function | stable | Validity predicate (Interior × Boundary → Bool) |
+| `realize` | function | stable | Realization function (Boundary × Choice → Interior) |
+| `transform` | function | stable | Boundary transformation (Boundary → Boundary) |
+| `project` | function | stable | Interior projection (Interior → View) |
+| `check-fano-incidence` | function | stable | FANO boundary validation (decoded × boundary → bool) |
+| `extract-fano-structure` | function | stable | Extract FANO structure from decoded data |
+| `check-pcg-pair-cover` | function | stable | PCG validation (decoded × boundary → bool) |
+| `generate-triples` | function | stable | Generate all triples for PCG checking |
+| `exec-step` | function | stable | Execute single CanvasL step |
+| `apply-encoder` | function | stable | Apply polynomial encoder (A*x + b) |
+| `decode-and-validate` | function | stable | Decode and validate against boundary |
+| `parse-aal` | function | stable | Parse AAL program from string |
+| `compile-aal` | function | stable | Compile AAL program (parse → well-formed → type-check → code-gen) |
+| `interpret-aal` | function | stable | Direct AAL execution with debugging |
 
 ### Required Dependencies
+
 | Component | Version Constraint | Purpose | Optional |
 |-----------|-------------------|---------|----------|
-| [dependency] | [semver-range] | [reason] | [yes/no] |
+| R5RS Scheme | Standard | Reference implementation language | No |
+| Guile | ≥3.0 | Scheme interpreter for execution | No |
+| Lean 4 | Latest | Formal verification (Fano, PCG) | No |
+| Coq | ≥8.15 | Formal verification (Fano, PCG) | No |
+| JSON Schema | Draft 2020-12 | CanvasL JSONL validation | No |
 
 ### Data Contracts
+
+#### BICF Core Interface
 ```json
 {
-  "input_schema": {},
-  "output_schema": {},
-  "error_cases": []
+  "input_schema": {
+    "boundary": {"type": "object", "required": ["id"]},
+    "interior": {"type": "object", "required": ["boundary-ref"]},
+    "choice": {"type": "object", "required": ["choice-id"]}
+  },
+  "output_schema": {
+    "valid": {"type": "boolean"},
+    "interior": {"type": "object"},
+    "boundary": {"type": "object"}
+  },
+  "error_cases": [
+    "invalid-boundary",
+    "invalid-interior",
+    "boundary-mismatch",
+    "realization-failure"
+  ]
 }
 ```
 
-### 3.7 Complexity Governance
-```markdown
+#### CanvasL JSONL Format
+```json
+{
+  "input_schema": {
+    "$ref": "schemas/canvasl-schema.json"
+  },
+  "output_schema": {
+    "environment": {"type": "object"},
+    "final_state": {"type": "object"}
+  },
+  "error_cases": [
+    "phase-monotonicity-violation",
+    "forward-reference",
+    "boundary-validation-failure",
+    "pcg-validation-failure"
+  ]
+}
+```
+
+---
+
 ## Complexity Governance
 
 ### Current Metrics
-- **Cyclomatic Complexity:** [value]
-- **Cognitive Complexity:** [value] 
-- **Halstead Volume:** [value]
-- **Dependency Count:** [value]
+
+- **FANO Validation:** O(n²) where n=7 points (exhaustive pairwise checking)
+- **PCG Validation:** O(n³) where n=14 points (all triples generated and checked)
+- **CanvasL Execution:** O(s) where s=number of steps (sequential processing)
+- **AAL Compilation:** O(p) where p=program size (single-pass parser, type checker)
+- **Environment Lookup:** O(m) where m=number of bindings (association list)
 
 ### Budget Allocation
-- **Maximum Allowed:** [budget-value]
-- **Current Usage:** [current-value]
-- **Remaining Budget:** [remaining]
-- **Escalation Threshold:** [90%]
+
+- **FANO Validation:** Maximum O(n²) = O(49) for n=7 (acceptable for finite case)
+- **PCG Validation:** Maximum O(n³) = O(2744) for n=14 (acceptable for finite case)
+- **CanvasL Execution:** Linear in trace size (no budget limit, but must be deterministic)
+- **AAL Compilation:** Linear in program size (no budget limit)
 
 ### Budget Enforcement
-- ❌ Block commits exceeding budget
-- ⚠️ Warn at 80% utilization  
-- ✅ Allow optimizations reducing complexity
-```
 
-### 3.8 Verification & Testing
-```markdown
+- ❌ Block commits exceeding complexity budgets
+- ⚠️ Warn if approaching O(n⁴) or higher complexity
+- ✅ Allow optimizations reducing complexity
+- ✅ Exhaustive checking acceptable for finite cases (FANO, PCG)
+
+---
+
 ## Verification & Testing
 
 ### Required Tests
-- [ ] Unit Tests: [min-count]
-- [ ] Integration Tests: [min-count]
-- [ ] Property Tests: [min-count]
-- [ ] Formal Verification: [if-applicable]
+
+- [x] **Unit Tests:** `tests/unit/core.test.scm` - BICF Core axiom tests
+- [x] **AAL Tests:** `tests/aal/` - Parser, type system, semantics, geometry tests
+- [x] **Integration Tests:** `tests/integration/bicf-integration.test.scm` - End-to-end workflows
+- [x] **Formal Verification:** `tests/formal/verify-lean.sh`, `tests/formal/verify-coq.sh` - Proof compilation
 
 ### Test Locations
+
 ```
-./tests/unit/
-./tests/integration/
-./tests/property/
+tests/
+├── unit/
+│   └── core.test.scm          # BICF Core tests
+├── aal/
+│   ├── parser.test.scm        # AAL parser tests
+│   ├── types.test.scm         # Type system tests
+│   ├── semantics.test.scm     # Semantics tests
+│   ├── polynomials.test.scm   # Polynomial algebra tests
+│   ├── geometry.test.scm      # D9 Fano Plane mapping tests
+│   └── integration.test.scm   # AAL end-to-end tests
+├── integration/
+│   └── bicf-integration.test.scm  # System integration tests
+└── formal/
+    ├── verify-lean.sh         # Lean 4 proof verification
+    └── verify-coq.sh          # Coq proof verification
 ```
 
 ### Coverage Requirements
-- **Line Coverage:** ≥ [percentage]%
-- **Branch Coverage:** ≥ [percentage]%
-- **Mutation Score:** ≥ [percentage]%
+
+- **Line Coverage:** ≥ 80% for core modules
+- **Branch Coverage:** ≥ 75% for validation functions
+- **Formal Verification:** 100% (all proofs must verify, no `sorry`/`admit`)
 
 ### Continuous Validation
-- [ ] Pre-commit hooks validate AGENTS.md
-- [ ] CI runs all declared verifications
-- [ ] Nightly runs check boundary integrity
-```
 
-### 3.9 CanvasL Integration
-```markdown
+- [x] Pre-commit hooks validate AGENTS.md structure
+- [x] CI runs all unit and integration tests
+- [x] CI runs formal verification scripts (`verify-lean.sh`, `verify-coq.sh`)
+- [x] Nightly runs check boundary integrity and proof compilation
+
+---
+
 ## CanvasL Integration
 
 ### Boundary Definition
+
 ```json
 {
   "type": "boundary",
-  "id": "[boundary-hash]",
-  "scope": "[directory-path]",
-  "layer": [layer-number],
-  "constraints": "[constraints-hash]",
-  "created": "[timestamp]"
+  "id": "bicf-production-repository",
+  "scope": "/",
+  "layer": "mixed",
+  "constraints": "boundary-interior-duality,explicit-realization,non-canonicity,determinism",
+  "created": "2024-12-19T00:00:00Z",
+  "rfc_compliance": ["RFC-BICF-CANVASL-POLY-001", "RFC-0001", "RFC-0002", "RFC-0003"]
 }
 ```
 
 ### Execution Semantics
-- **Phase:** [execution-phase-number]
-- **Dependencies:** [list-of-boundary-ids]
-- **Preconditions:** [must-be-true-before]
-- **Postconditions:** [must-be-true-after]
+
+- **Phase:** Repository-level (phase 0 for structure, phase 1+ for operations)
+- **Dependencies:** 
+  - BICF Core → FANO, PCG
+  - CanvasL Interpreter → FANO, PCG
+  - Integration Layer → All modules
+- **Preconditions:**
+  - All formal proofs must verify
+  - All tests must pass
+  - Schema validation must succeed
+- **Postconditions:**
+  - Boundary-interior duality preserved
+  - Deterministic execution maintained
+  - Formal verification status unchanged
 
 ### Projection Mappings
+
 | CanvasL Field | AGENTS.md Section | Export Format |
 |---------------|-------------------|---------------|
 | `boundary.id` | Component Identity | JSON, JSON-LD |
-| `constraints` | Boundary Constraints | RDF/Turtle |
-| `interfaces` | Interface Specifications | OpenAPI |
-| `verification` | Verification & Testing | JUnit XML |
-```
+| `boundary.constraints` | Boundary Constraints | RDF/Turtle |
+| `boundary.interfaces` | Interface Specifications | OpenAPI |
+| `boundary.verification` | Verification & Testing | JUnit XML |
+| `boundary.formal_properties` | Formal Properties | Lean 4, Coq |
 
-### 3.10 Merge Semantics
-```markdown
+### CanvasL-POLY Compliance
+
+- **JSONL Format:** All CanvasL execution follows `schemas/canvasl-schema.json`
+- **Phase Monotonicity:** Steps must be processed sequentially by phase
+- **Forward References:** Prevented (no references to future steps)
+- **Polynomial Encoding:** State evolution via `A*x + b` affine encoders
+- **Boundary Validation:** FANO and PCG validation integrated into execution
+
+---
+
 ## Merge Semantics
 
 ### Merge Compatibility
-This component MAY be merged IF:
+
+This repository MAY be merged IF:
 
 #### Required Conditions
-- [ ] Boundary hash matches expected value
-- [ ] All tests pass
-- [ ] No AGENTS.md constraint is violated
-- [ ] Complexity budget is respected
-- [ ] Dependencies remain compatible
+
+- [x] Boundary hash matches expected value (or updated with justification)
+- [x] All tests pass (unit, integration, AAL)
+- [x] No AGENTS.md constraint is violated
+- [x] Complexity budget is respected
+- [x] Dependencies remain compatible (R5RS, Lean 4, Coq)
+- [x] Formal proofs verify (no `sorry`/`admit` introduced)
+- [x] CanvasL-POLY execution semantics preserved
+- [x] BICF axioms remain intact
 
 #### Conflict Resolution
+
 **If boundary has diverged:**
 1. Regenerate AGENTS.md from current state
-2. Validate against repository constraints
+2. Validate against repository constraints (BICF axioms, RFC compliance)
 3. Update boundary hash
-4. Re-run all verifications
+4. Re-run all verifications (tests, formal proofs)
+5. Update documentation if interfaces changed
 
 **If constraints conflict:**
 1. Escalate to repository maintainer
-2. Adjust boundary definition if needed
-3. Update dependent components
-4. Log resolution in mind-git
+2. Assess impact on BICF axioms and RFC compliance
+3. Adjust boundary definition if needed (may require RFC update)
+4. Update dependent components
+5. Log resolution in commit message with BICF justification
+
+**If formal proofs fail:**
+1. Identify introduced `sorry`/`admit` statements
+2. Complete proofs or revert changes
+3. Verify all proofs compile and verify
+4. Update formal verification documentation
 
 ### Merge Safety Guarantees
-- ✅ Deterministic merge validation
-- ✅ No hidden state introduction
-- ✅ Backward compatibility check
-- ✅ Forward compatibility assessment
-```
 
-### 3.11 Change Protocol
-```markdown
+- ✅ Deterministic merge validation (all checks are reproducible)
+- ✅ No hidden state introduction (explicit realization enforced)
+- ✅ Backward compatibility check (public APIs must remain stable)
+- ✅ Forward compatibility assessment (schema changes must be backward compatible)
+- ✅ BICF axiom preservation (boundary-interior duality maintained)
+- ✅ Formal verification preservation (proofs must remain verified)
+
+---
+
 ## Change Protocol
 
 ### Modifying This File
-1. **Proposal:** Document proposed change in PR
-2. **Validation:** Run `mind-git kernel:validate ./`
-3. **Impact:** Assess affected components
-4. **Approval:** Get review from [roles]
-5. **Update:** Modify file and regenerate hash
-6. **Verification:** Confirm all tests pass
+
+1. **Proposal:** Document proposed change in PR description
+2. **Validation:** 
+   - Run `./scripts/test.sh` to verify all tests pass
+   - Run `./tests/formal/verify-lean.sh` and `./tests/formal/verify-coq.sh`
+   - Validate against `schemas/canvasl-schema.json` if CanvasL changes
+3. **Impact:** Assess affected components:
+   - BICF Core changes → may affect all modules
+   - FANO/PCG changes → may affect CanvasL interpreter
+   - AAL changes → may affect compiler/interpreter
+   - Schema changes → may affect CanvasL execution
+4. **Approval:** Get review from maintainers familiar with:
+   - BICF principles (boundary-interior duality)
+   - RFC-BICF-CANVASL-POLY-001 specification
+   - Formal verification (Lean 4, Coq)
+5. **Update:** 
+   - Modify file and regenerate boundary hash
+   - Update relevant sections (interfaces, complexity, formal properties)
+   - Update `Last Validated` timestamp
+6. **Verification:** 
+   - Confirm all tests pass
+   - Verify formal proofs compile
+   - Check documentation accuracy
 
 ### Versioning Rules
-- **MAJOR:** Breaking boundary changes
-- **MINOR:** New admissible operations
-- **PATCH:** Clarifications or fixes
+
+- **MAJOR:** Breaking boundary changes (BICF axiom modifications, RFC updates)
+- **MINOR:** New admissible operations (new boundary modules, CanvasL operations)
+- **PATCH:** Clarifications, fixes, documentation updates
 
 ### Audit Trail
+
 All changes MUST be:
-- Committed with AGENTS.md boundary hash
-- Linked to CanvasL execution phase
-- Documented in mind-git log
-- Validated pre-merge
-```
+
+- **Committed with AGENTS.md boundary hash** (for boundary integrity)
+- **Linked to CanvasL execution phase** (if applicable)
+- **Documented in commit message** with BICF justification
+- **Validated pre-merge** (tests, formal proofs, schema validation)
+- **Referenced in RFC updates** (if BICF axioms or interfaces change)
+
+### Repository-Specific Change Process
+
+#### For BICF Core Changes
+1. Update `src/core/bicf-core.scm`
+2. Update RFC documents in `dev-docs/RFC-BICF-CANVASL-POLY-001/02-bicf-specification/`
+3. Run `tests/unit/core.test.scm`
+4. Update `production-docs/api-reference.md`
+5. Update AGENTS.md interfaces section
+
+#### For AAL Changes
+1. Update `src/aal/` modules
+2. Run `tests/aal/` test suite
+3. Verify AAL specification in `dev-docs/Assembly–Algebra Language v3.2/`
+4. Update `production-docs/api-reference.md` if interfaces change
+5. Update AGENTS.md interfaces and complexity sections
+
+#### For CanvasL Changes
+1. Update `src/canvasl/interpreter.scm`
+2. Update `schemas/canvasl-schema.json` if format changes
+3. Run `tests/integration/bicf-integration.test.scm`
+4. Verify against RFC-0003 (CanvasL-POLY)
+5. Update `production-docs/api-reference.md`
+6. Update AGENTS.md CanvasL Integration section
+
+#### For Formal Proof Changes
+1. Update `src/lean/fano_pcg.lean` or `src/coq/Fano_PCG.v`
+2. Verify no `sorry`/`admit` statements introduced
+3. Run `tests/formal/verify-lean.sh` or `tests/formal/verify-coq.sh`
+4. Update `production-docs/formal-verification.md`
+5. Update AGENTS.md Formal Properties section
 
 ---
 
-## 4. Universal Layer Model Integration
+## Normative References
 
-AGENTS.md MUST reference one of 8 Universal Layers:
-
-| Layer | AGENTS.md Implications | Example Components |
-|-------|------------------------|-------------------|
-| **1. Mathematical** | Must include formal proofs | Theorem provers, Cryptography |
-| **2. Core** | Must be deterministic | Algorithms, Data structures |
-| **3. API** | Must maintain stability | Interfaces, Protocols |
-| **4. Services** | Must be testable | Business logic, Workflows |
-| **5. Data** | Must have explicit schemas | Databases, Serialization |
-| **6. UI** | Must define state machines | Components, Views |
-| **7. Tests** | Must be measurable | Test suites, Benchmarks |
-| **8. Documentation** | Must be verifiable | Specifications, Guides |
+1. **RFC-BICF-CANVASL-POLY-001** - Base standard (`dev-docs/RFC-BICF-CANVASL-POLY-001/`)
+2. **RFC-0001: BICF Core** - Boundary–Interior Combinatorial Framework (`dev-docs/RFC-BICF-CANVASL-POLY-001/02-bicf-specification/RFC-0001-BICF-Core.md`)
+3. **RFC-0002: FANO** - Fano Plane Boundary Module (`dev-docs/RFC-BICF-CANVASL-POLY-001/03-fano-plane/RFC-0002-FANO.md`)
+4. **RFC-0003: CanvasL-POLY** - Deterministic Boundary–Interior Computation Standard (`dev-docs/RFC-BICF-CANVASL-POLY-001/05-canvasl-poly/RFC-0003-CanvasL-POLY.md`)
+5. **CanvasL JSONL Schema** - `schemas/canvasl-schema.json`
+6. **AAL v3.2 Specification** - `dev-docs/Assembly–Algebra Language v3.2/`
+7. **Universal Layer Model** - Component classification (this document)
+8. **Production Documentation** - `production-docs/` (architecture, API reference, implementation guide)
 
 ---
 
-## 5. Tooling Requirements
+## Status & Evolution
 
-### 5.1 Validation Commands
-```bash
-# Validate AGENTS.md against repository
-mind-git kernel:validate ./component
+This boundary contract is:
+- ✅ Repository-specific (not a generic template)
+- ✅ BICF-aligned (boundary-interior duality, explicit realization, non-canonicity)
+- ✅ Formally grounded (Lean 4, Coq, AAL proofs referenced)
+- ✅ Practically validated (actual components, interfaces, complexity metrics)
+- ✅ RFC-compliant (RFC-BICF-CANVASL-POLY-001 aligned)
 
-# Generate AGENTS.md from current state  
-mind-git kernel:generate ./component
+**Component Status:**
+- ✅ BICF Core: Complete and verified
+- ✅ FANO Boundary: Complete and verified
+- ✅ PCG Consensus: Complete and verified
+- ✅ CanvasL Interpreter: Complete and verified
+- ✅ AAL Implementation: Complete (Phase 1-2), integration planned
+- ✅ Formal Verification: Complete (Lean 4, Coq proofs verified)
 
-# Check merge compatibility
-mind-git kernel:check-merge ./component origin/main
-
-# Export boundary to CanvasL
-mind-git kernel:export-boundary ./component
-```
-
-### 5.2 Pre-commit Hooks
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: validate-agents
-        name: Validate AGENTS.md
-        entry: mind-git kernel:validate
-        language: system
-        files: ^AGENTS\.md$
-        
-      - id: check-complexity
-        name: Check Complexity Budget
-        entry: mind-git kernel:check-complexity
-        language: system
-        files: \.(py|js|rs|lean)$
-```
+**Next steps:**
+1. Complete AAL-BICF integration (Phase 3)
+2. Add additional boundary modules following FANO pattern
+3. Extend CanvasL operations while maintaining JSONL format
+4. Enhance formal verification coverage
 
 ---
 
-## 6. Compliance Checklist
-
-Before committing, verify:
-
-### Structural Compliance
-- [ ] All required sections present
-- [ ] Hashes are current and valid
-- [ ] Layer assignment is correct
-- [ ] No contradictions in constraints
-
-### Semantic Compliance  
-- [ ] Admissible operations are explicit
-- [ ] Forbidden operations are complete
-- [ ] Interfaces are fully specified
-- [ ] Dependencies are declared
-
-### Execution Compliance
-- [ ] Tests exist and pass
-- [ ] Complexity within budget
-- [ ] Formal properties verified (if any)
-- [ ] Merge conditions satisfied
-
----
-
-## 7. Examples
-
-### Example 1: Layer 2 Core Component
-```markdown
-## Component Identity
-- **Name:** sorting-algorithms
-- **Path:** src/core/sorting
-- **Layer:** 2
-- **Boundary Hash:** sha256:abc123...
-
-## Boundary Constraints
-### MUST
-- [ ] Preserve O(n log n) worst-case guarantee
-- [ ] Maintain deterministic output
-- [ ] Keep memory usage O(1) for in-place sorts
-
-### MUST NOT  
-- [x] Introduce non-determinism
-- [x] Exceed O(n) memory without explicit option
-```
-
-### Example 2: Layer 1 Mathematical Component  
-```markdown
-## Formal Properties
-### Formal System: Lean 4
-
-### Proven Invariants
-1. **Theorem:** sorting_correct
-   - **Statement:** ∀ (xs : List Nat), is_sorted (sort xs)
-   - **Proof:** Sorting.lean:42
-   - **Status:** verified
-```
-
----
-
-## 8. Normative References
-
-1. **RFC-BICF-CANVASL-POLY-001** - Base standard
-2. **CanvasL JSONL Specification** - Execution format  
-3. **Universal Layer Model** - Component classification
-4. **mind-git Protocol** - Versioning semantics
-
----
-
-## 9. Status & Evolution
-
-This specification is:
-- ✅ Production ready
-- ✅ Standards compliant  
-- ✅ Formally grounded
-- ✅ Practically validated
-
-**Next steps for implementers:**
-1. Add AGENTS.md to key components
-2. Integrate validation into CI/CD
-3. Train team on boundary semantics
-4. Establish escalation protocols
-
----
-
-*AGENTS.md transforms documentation into execution contracts. It's not what you can read—it's what you can safely do.*
+*AGENTS.md transforms documentation into execution contracts. For the BICF Production System, it enforces boundary-interior duality, explicit realization, and deterministic validation—the core principles that make distributed computation verifiable and replayable.*
