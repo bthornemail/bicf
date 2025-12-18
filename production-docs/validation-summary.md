@@ -6,13 +6,13 @@
 
 ## Overall Assessment
 
-⚠️ **PARTIALLY VALIDATED** - Strong theoretical foundation and reference implementations exist, but production structure is incomplete
+✅ **VALIDATED (CURRENT REPO STATE)** - Core Scheme modules exist under `src/`, deterministic tooling exists (CLBC/VM/VIZ/LSP), and the repo includes an executable test runner (`scripts/test.sh`).
 
 ---
 
 ## Key Discovery
 
-**Important:** Reference implementations DO exist in `dev-docs/` folder, but they are not in the production `src/` structure.
+**Important:** This repository contains executable Scheme implementations in `src/` and includes deterministic tooling (CLBC/VM/VIZ) plus a minimal LSP server under `apps/`.
 
 ---
 
@@ -21,10 +21,11 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | File Structure | ✅ Valid | All directories exist |
-| Lean 4 Formal Verification | ✅ Valid | Complete, machine-checkable proofs |
+| Lean 4 Formal Verification | ✅ Valid | Proof file present; repo script handles verification if toolchain is installed |
 | CanvasL JSONL Schema | ✅ Valid | Production-ready schema |
-| Package Configuration | ✅ Valid | Proper package.json structure |
-| Coq Formal Verification | ⚠️ Partial | Core theorem admitted (incomplete) |
+| Test Runner | ✅ Valid | `scripts/test.sh` is executable and runs multiple checks (including CLBC + viz) |
+| Package Configuration | ✅ Valid | Node/JS tooling exists (LSP server) |
+| Coq Formal Verification | ⚠️ Environment-dependent | Proof file present; compilation depends on Coq+Dune availability and configuration |
 
 ---
 
@@ -32,9 +33,7 @@
 
 | Component | Status | Issue |
 |-----------|--------|-------|
-| CanvasL Interpreter | ⚠️ Partial | **358-line implementation exists in `dev-docs/`** but not in `src/canvasl/` |
-| FANO Boundary Module | ⚠️ Partial | Reference implementation exists but not in production structure |
-| PCG Consensus Module | ⚠️ Partial | Reference implementation exists but not in production structure |
+| Coq build portability | ⚠️ Partial | Coq/Dune versions and installed Coq libraries vary across environments |
 
 ---
 
@@ -42,14 +41,8 @@
 
 | Component | Status | Issue |
 |-----------|--------|-------|
-| BICF Core Implementation | ❌ Invalid | Only README, no executable code |
-| Integration Layer | ❌ Invalid | Only README, no code |
-| Docker Infrastructure | ❌ Invalid | No Dockerfile or docker-compose files |
-| Build System | ❌ Invalid | Scripts are markdown, not executable |
-| Testing Framework | ❌ Invalid | tests/ directory doesn't exist |
-| LOGOS Client | ❌ Invalid | No implementation found |
-| Production Deployment | ❌ Invalid | Only documentation, no config files |
-| JavaScript/TypeScript | ❌ Invalid | No .js or .ts files in src/ |
+| Docker Infrastructure | ❌ Not provided | Docker files are not part of the current repo deliverables (docs may exist elsewhere) |
+| Production Deployment | ❌ Not provided | Deployment automation is not included as a first-class artifact in this repo |
 
 ---
 
@@ -57,66 +50,35 @@
 
 ### 🔴 Major Issues
 
-1. **Implementation Misplacement**
-   - Real implementations exist in `dev-docs/` folder
-   - Production `src/` directories contain only README files
-   - Reference implementations have placeholder validation hooks
+1. **Documentation drift**
+   - Some older validation docs describe a previous repo state (e.g., “no tests/no code”) and must be treated as historical unless kept updated.
 
-2. **Misleading File Types**
-   - `interpreter.scm` contains markdown, not Scheme
-   - `build.sh` contains markdown, not bash
+2. **Toolchain variability**
+   - Formal verification compilation is sensitive to local Lean/Coq toolchain setup.
 
-3. **No Production Infrastructure**
-   - No Docker files
-   - No CI/CD pipeline
-   - No executable scripts
-
-4. **Placeholder Validation Logic**
-   - FANO checker returns `#t` without validation
-   - PCG validator returns `#t` without validation
+3. **Explicit tooling boundaries**
+   - Node LSP is tooling-only and must remain separated from the pure Scheme engine semantics.
 
 ### ✅ Strengths
 
-1. **Excellent Lean 4 Formalization**
-   - Complete, production-quality proofs
-   - Suitable for academic publication
+1. **Deterministic testing harness**
+   - CLBC compiler + reference VM produce a transcript hash suitable for golden tests.
+   - RFC-VIZ-001 produces deterministic scene graphs suitable for snapshot tests.
 
-2. **Substantial Reference Implementation**
-   - Real CanvasL interpreter (358 lines)
-   - Functional R5RS Scheme code
-   - Complete execution engine
-
-3. **Comprehensive Documentation**
-   - Detailed architectural descriptions
-   - Clear code examples
+2. **Executable tests**
+   - `scripts/test.sh` orchestrates checks and can be used as the truth source for “how to validate this repo”.
 
 ---
 
-## Reference Implementation Details
+## Reference implementation notes
 
-### Found in `dev-docs/RFC-BICF-CANVASL-POLY-001/06-implementations/scheme-reference/`:
-
-1. **`interpreter.r5rs`** (358 lines)
-   - Complete CanvasL interpreter
-   - Environment management
-   - Encoder operations
-   - Trace execution engine
-   - ⚠️ Validation hooks are placeholders
-
-2. **`fano-checker.r5rs`** (16 lines)
-   - Placeholder implementation
-   - Returns `#t` without validation
-
-3. **`pcg-validator.r5rs`** (13 lines)
-   - Placeholder implementation
-   - Returns `#t` without validation
+Historical reference implementations may exist under `dev-docs/`, but **production execution** should be based on `src/` and the repo’s test scripts.
 
 ---
 
 ## Recommendation
 
-**Current Description:** "Complete, production-grade implementation"  
-**Accurate Description:** "Formally Verified Specification with Reference Implementation"
+**Accurate Description:** “Deterministic core + deterministic tooling for testing and visualization, with formal verification artifacts (Lean/Coq) depending on local toolchain availability.”
 
 **Status:** Requires moving reference implementations to production structure and implementing validation hooks.
 
@@ -124,12 +86,8 @@
 
 ## Next Steps
 
-1. Move reference implementations from `dev-docs/` to `src/`
-2. Implement actual validation logic (replace placeholders)
-3. Complete Coq formalization (remove Admitted)
-4. Create production infrastructure (Docker, CI/CD)
-5. Implement testing framework
-6. Fix file types (separate code from documentation)
+1. Keep `production-docs/` aligned with `scripts/test.sh` and the actual `src/` layout.
+2. If portability is required, standardize and document the expected Lean/Coq toolchain versions.
 
 ---
 

@@ -1,7 +1,7 @@
 # BICF Production System - Implementation Guide
 
 **Version:** 1.0.0  
-**Last Updated:** 2024-12-19
+**Last Updated:** 2025-12-18
 
 This document provides detailed implementation information for the BICF Production System, including architecture, design decisions, code organization, and implementation patterns.
 
@@ -99,6 +99,18 @@ src/
 ├── canvasl/           # CanvasL Interpreter
 │   ├── interpreter.scm
 │   └── interpreter.scm.md (backup)
+├── clbc/              # CLBC container + compiler (deterministic bytecode)
+│   ├── bytes.scm
+│   ├── uleb128.scm
+│   ├── opcodes.scm
+│   ├── format.scm
+│   ├── compiler.scm
+│   └── README.md
+├── vm/                # CLBC reference VM
+│   ├── clbc-vm.scm
+│   └── README.md
+├── viz/               # RFC-VIZ-001 deterministic scene model (data-only)
+│   └── scene.scm
 ├── integration/       # Integration layer
 │   ├── bicf-system.scm
 │   ├── module-loader.scm
@@ -108,6 +120,21 @@ src/
 ├── coq/               # Coq formalization
 │   └── Fano_PCG.v
 └── index.scm          # Main entry point
+```
+
+Additional tooling and tests:
+
+```
+tools/
+  canvasl-to-clbc.scm  # Compile CanvasL records (Scheme alists) -> CLBC
+  clbc-run.scm         # Run CLBC via reference VM; print transcript hash
+  viz-scene.scm        # Emit RFC-VIZ-001 scene S-expression
+
+apps/lsp/
+  canvasl-lsp.js       # Minimal CanvasL LSP server (Node)
+
+tests/clbc/            # CLBC golden tests
+tests/viz/             # RFC-VIZ-001 snapshot tests
 ```
 
 ### Module Dependencies
@@ -496,6 +523,38 @@ Each module has corresponding unit tests:
 ./tests/formal/verify-coq.sh
 ```
 
+### CLBC workflow (compile + run)
+
+```bash
+# Compile records (Scheme alists) -> CLBC container
+guile -s tools/canvasl-to-clbc.scm tests/clbc/mini-validation.input.scm /tmp/out.clbc
+
+# Execute CLBC and print transcript hash
+guile -s tools/clbc-run.scm /tmp/out.clbc
+```
+
+### RFC-VIZ-001 workflow (scene snapshot)
+
+```bash
+# Generate a deterministic scene S-expression
+guile -s tools/viz-scene.scm 3 0 1
+
+# Or run the repo snapshot test
+bash tests/viz/run-scene-snapshot.sh
+```
+
+### LSP workflow (manual run)
+
+```bash
+# Run the LSP server (stdio)
+node apps/lsp/canvasl-lsp.js
+```
+
+Custom methods exposed by the server (MVP):
+- `canvasl/getScene`
+- `canvasl/getTrace`
+- `canvasl/getIncidence`
+
 ---
 
 ## Performance Characteristics
@@ -593,5 +652,6 @@ Each module has corresponding unit tests:
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
 - Lean 4 Formalization: `src/lean/fano_pcg.lean`
 - Coq Formalization: `src/coq/Fano_PCG.v`
+
 
 

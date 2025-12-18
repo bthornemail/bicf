@@ -1,7 +1,7 @@
 # BICF Production System - Architecture Documentation
 
-**Version:** 1.0.0  
-**Last Updated:** 2024-12-19
+**Version:** 1.1.0  
+**Last Updated:** 2025-12-18
 
 This document describes the system architecture of the BICF Production System, including component interactions, data flows, module dependencies, and integration points.
 
@@ -29,6 +29,7 @@ The BICF Production System implements a layered architecture with clear separati
 - **Consensus Mechanisms** (PCG validation)
 - **Execution Layer** (CanvasL interpreter)
 - **Integration Layer** (System coordination)
+- **Deterministic Tooling Layer** (CLBC compiler/VM, RFC-VIZ-001 scene model, LSP)
 
 ### Architectural Principles
 
@@ -68,6 +69,13 @@ graph TB
     subgraph "Execution Layer"
         Interpreter[src/canvasl/interpreter.scm<br/>CanvasL Interpreter<br/>JSONL Execution]
     end
+
+    subgraph "Deterministic Tooling Layer"
+        CLBC[src/clbc/*.scm<br/>CLBC Container+Compiler]
+        VM[src/vm/clbc-vm.scm<br/>CLBC Reference VM]
+        Viz[src/viz/scene.scm<br/>RFC-VIZ-001 Scene Model]
+        LSP[apps/lsp/canvasl-lsp.js<br/>CanvasL LSP (Node)]
+    end
     
     subgraph "Formal Verification"
         Lean[src/lean/fano_pcg.lean<br/>Lean 4 Proofs]
@@ -87,6 +95,11 @@ graph TB
     FANO -.validates.-> Lean
     PCG -.validates.-> Lean
     PCG -.validates.-> Coq
+
+    Interpreter -->|"optional: compile traces"| CLBC
+    CLBC --> VM
+    Interpreter -->|"projection: pure scene data"| Viz
+    LSP -->|"tooling calls (no engine side-effects)"| Viz
 ```
 
 ---
@@ -143,6 +156,37 @@ JSONL Input
     │
     └─> Output
 ```
+
+### Deterministic Bytecode Harness (CLBC)
+
+CLBC provides a deterministic compilation + execution path for golden tests and embedded parity:
+
+```
+CanvasL Records (alist/S-expression)
+    │
+    ├─> CLBC Compiler (src/clbc/compiler.scm)
+    │       └─> CLBC Container Bytes (*.clbc)
+    │
+    └─> Reference VM (src/vm/clbc-vm.scm)
+            └─> Transcript Hash + Diagnostics
+```
+
+### Visualization as Projection (RFC-VIZ-001 MVP)
+
+Visualization is treated as a **pure projection** (data-only scene graph), not as part of the engine’s state transition logic:
+
+```
+Context Parameters (k, globalDecision, includeFano)
+    │
+    └─> viz-make-scene (src/viz/scene.scm)
+            └─> Deterministic Scene Graph (alist)
+```
+
+### Tooling boundary: LSP server
+
+The CanvasL LSP server (`apps/lsp/canvasl-lsp.js`) is tooling-only:
+- It must not introduce hidden state into the engine.
+- It serves deterministic responses for MVP custom methods (`canvasl/getScene`, `canvasl/getTrace`, `canvasl/getIncidence`).
 
 ### Validation Flow
 
@@ -346,7 +390,7 @@ docker run bicf/production:latest interpreter trace.jsonl
 
 **File:** `src/coq/Fano_PCG.v`
 
-**Status:** ⚠️ Complete but compilation needs setup
+**Status:** ⚠️ Proofs present; compilation depends on Coq+Dune toolchain availability
 
 **Proves:**
 - Fano plane uniqueness theorem
@@ -354,9 +398,8 @@ docker run bicf/production:latest interpreter trace.jsonl
 - Roundtrip lemmas
 
 **Compilation Note:**
-- Requires proper Coq project setup (dune or coq_makefile)
-- May need additional imports for `fin_scope`
-- Proofs are complete (no `Admitted` statements)
+- This repo uses a Dune-based Coq project under `src/coq/`.
+- Exact Coq/Dune versions and installed Coq libraries determine whether it compiles cleanly in a given environment.
 
 ### Verification Workflow
 
@@ -564,5 +607,6 @@ GitHub Actions / GitLab CI
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
 - [API Reference](api-reference.md)
 - [Implementation Guide](implementation-guide.md)
+
 
 

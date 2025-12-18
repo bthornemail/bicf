@@ -1,8 +1,8 @@
 # BICF Production System - API Reference
 
-**Version:** 1.0.0  
-**Last Updated:** 2024-12-19  
-**Language:** R5RS Scheme
+**Version:** 1.1.0  
+**Last Updated:** 2025-12-18  
+**Languages:** R5RS Scheme (core + tooling CLIs), Node.js (LSP)
 
 This document provides a complete API reference for the BICF Production System. All functions, types, and interfaces are documented with signatures, parameters, return values, and usage examples.
 
@@ -16,6 +16,10 @@ This document provides a complete API reference for the BICF Production System. 
 4. [CanvasL Interpreter Module](#canvasl-interpreter-module)
 5. [Integration Layer](#integration-layer)
 6. [Module Loader](#module-loader)
+7. [CLBC (CanvasL ByteCode)](#clbc-canvasl-bytecode)
+8. [CLBC Reference VM](#clbc-reference-vm)
+9. [RFC-VIZ-001 Scene Model (MVP)](#rfc-viz-001-scene-model-mvp)
+10. [CanvasL LSP (MVP)](#canvasl-lsp-mvp)
 
 ---
 
@@ -1278,6 +1282,11 @@ For large-scale use, consider:
   - CanvasL interpreter
   - Integration layer
 
+- **1.1.0** (2025-12-18): Tooling + deterministic harness additions
+  - CLBC container + compiler + reference VM
+  - RFC-VIZ-001 deterministic scene generator + snapshot tests
+  - Minimal CanvasL LSP server (custom methods; no engine side-effects)
+
 ---
 
 ## References
@@ -1285,5 +1294,117 @@ For large-scale use, consider:
 - RFC-0001: Boundary–Interior Combinatorial Framework
 - RFC-0002: FANO Boundary Module (PG(2,2))
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
+
+---
+
+## CLBC (CanvasL ByteCode)
+
+**Files:** `src/clbc/bytes.scm`, `src/clbc/uleb128.scm`, `src/clbc/opcodes.scm`, `src/clbc/format.scm`, `src/clbc/compiler.scm`  
+**CLI:** `tools/canvasl-to-clbc.scm`
+
+CLBC is a deterministic container + bytecode stream intended for golden-testing and embedded parity.
+
+### CLBC compiler entrypoints
+
+#### `canvasl-records->clbc records → (table . bytes)`
+
+Compiles a list of CanvasL records (alist datums) into a CLBC container byte list.
+
+**Parameters:**
+- `records` - List of alists (one record per step)
+
+**Returns:**
+- Pair `(table . bytes)` where `bytes` is the CLBC container (list of u8)
+
+#### `read-records-from-port port → records`
+
+Reads one Scheme datum at a time from `port` until EOF, returning a list of alists.
+
+### CLI: CanvasL records → CLBC
+
+```bash
+guile -s tools/canvasl-to-clbc.scm input.scm output.clbc
+```
+
+**Notes:**
+- `input.scm` is expected to contain one Scheme datum per line (an alist record), compatible with `read-records-from-port`.
+
+---
+
+## CLBC Reference VM
+
+**File:** `src/vm/clbc-vm.scm`  
+**CLI:** `tools/clbc-run.scm`
+
+Minimal deterministic VM for executing CLBC byte streams and producing a transcript hash.
+
+### VM entrypoints
+
+#### `vm-run-clbc-bytes clbc-bytes → alist`
+
+Executes CLBC bytes and returns an alist result:
+- `(ok? . boolean)` success flag
+- `(transcript-hash . string)` rolling transcript hash
+- `(events . integer)` number of events observed
+- `(errors . (list string))` deterministic error list
+
+#### `read-file-bytes path → (list u8)`
+
+Reads a file as a byte list.
+
+### CLI: Run CLBC and print transcript
+
+```bash
+guile -s tools/clbc-run.scm program.clbc
+```
+
+---
+
+## RFC-VIZ-001 Scene Model (MVP)
+
+**File:** `src/viz/scene.scm`  
+**CLI:** `tools/viz-scene.scm`
+
+Pure deterministic “scene graph” generator (data only) suitable for snapshot/golden testing.
+
+### Scene generation
+
+#### `viz-make-scene k has-global-decision? include-fano? fano-points fano-lines → scene`
+
+Returns a deterministic alist structure rooted at `ContextRoot` with:
+- `ClosureEnvelope`
+- `StructureProxy`
+- `IncidenceOverlay`
+- `TraceLayer`
+
+### CLI: Generate a scene snapshot
+
+```bash
+guile -s tools/viz-scene.scm <k> <globalDecision:0|1> <includeFano:0|1>
+```
+
+---
+
+## CanvasL LSP (MVP)
+
+**File:** `apps/lsp/canvasl-lsp.js`  
+**Language:** Node.js (no external deps)
+
+Minimal Language Server Protocol implementation focused on deterministic tooling and custom CanvasL methods.
+
+### Custom request methods
+
+#### `canvasl/getScene → object`
+
+Returns a deterministic placeholder scene object (MVP).
+
+#### `canvasl/getTrace → object`
+
+Returns a minimal trace summary (MVP placeholder).
+
+#### `canvasl/getIncidence → object`
+
+Returns Fano incidence payload (points + lines) as a deterministic response.
+
 
 

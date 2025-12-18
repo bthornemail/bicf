@@ -1,7 +1,7 @@
 # BICF Production System - Formal Verification Status
 
 **Version:** 1.0.0  
-**Last Updated:** 2024-12-19
+**Last Updated:** 2025-12-18
 
 This document describes the formal verification status of the BICF Production System, including Lean 4 and Coq formalizations, proof compilation status, and how to verify the proofs.
 
@@ -146,8 +146,8 @@ theorem pcg_two_fano_explicit
 # Check if Lean 4 is installed
 lean --version
 
-# Verify the file compiles
-lean --check src/lean/fano_pcg.lean
+# Verify the file compiles (Lean invocation varies by toolchain; prefer repo script)
+./tests/formal/verify-lean.sh
 
 # Or use Lean 4 language server
 lean --server
@@ -706,9 +706,9 @@ grep -i "admitted\|admit" src/coq/Fano_PCG.v
 # Method 2: Structure check (current)
 ./tests/formal/verify-coq.sh
 
-# Method 3: Full compilation (requires setup)
+# Method 3: Full compilation (requires Coq + Dune setup)
 cd src/coq
-coqc Fano_PCG.v
+dune build Fano_PCG.vo
 ```
 
 ---
@@ -761,5 +761,6 @@ The formal proofs provide **mathematical guarantees** for:
 - Two-Fano construction correctness
 
 These guarantees ensure the reference implementation is **mathematically sound** and **production-ready**.
+
 
 

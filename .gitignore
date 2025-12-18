@@ -3,3 +3,5 @@ dev-docs
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
 /.lake
+.obsidian/workspace.json
+_build/

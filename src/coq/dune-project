@@ -1,4 +1,4 @@
 (lang dune 3.0)
 
-(using coq 0.5)
+(using coq 0.3)
 
