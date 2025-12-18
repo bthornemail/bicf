@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: canvasl-lsp-e2e
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: e2e
+          image: bicf-production:local
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CANVASL_LSP_HOST
+              value: bicf-canvasl-lsp
+            - name: CANVASL_LSP_PORT
+              value: "7000"
+            - name: CANVASL_JSONL_PATH
+              value: "/data/matrix.base.jsonl"
+            - name: GUILE_AUTO_COMPILE
+              value: "0"
+          command: ["node", "/app/tests/lsp/e2e-client.mjs"]
+          volumeMounts:
+            - name: fixtures
+              mountPath: /data
+      volumes:
+        - name: fixtures
+          configMap:
+            name: canvasl-fixtures
+
+

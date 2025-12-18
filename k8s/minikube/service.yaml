@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bicf-canvasl-lsp
+spec:
+  selector:
+    app: bicf-canvasl-lsp
+  ports:
+    - name: lsp
+      port: 7000
+      targetPort: 7000
+
+

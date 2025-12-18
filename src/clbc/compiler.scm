@@ -29,8 +29,10 @@
   (let ((p (assq k a))) (if p (cdr p) #f)))
 
 (define (require-field a k)
-  (let ((v (alist-ref a k)))
-    (if v v (error "missing required field" k a))))
+  (let ((p (assq k a)))
+    (if p
+        (cdr p) ;; allow #f as a valid value (e.g., optional=false)
+        (error "missing required field" k a))))
 
 (define (string-or-symbol->string x)
   (cond ((string? x) x)
@@ -356,12 +358,46 @@
 
 (define (canvasl-records->clbc records)
   ;; Two-pass: collect strings, build canonical string table, compile record stream.
+  (define (collect-strings-record r)
+    (let ((kind (or (alist-ref r 'kind) (alist-ref r 'op))))
+      (cond
+       ((or (not kind) (not (or (string? kind) (symbol? kind)))) '())
+       ((string=? (string-or-symbol->string kind) "context")
+        (let* ((edges (or (alist-ref r 'edges) '()))
+               (faces (or (alist-ref r 'faces) '())))
+          (append
+           ;; edge types are interned strings
+           (let loop ((es edges) (out '()))
+             (if (null? es) out
+                 (let ((t (alist-ref (car es) 'type)))
+                   (loop (cdr es) (if (string? t) (cons t out) out)))))
+           ;; face constraints are interned strings (e.g. "fano")
+           (let loop ((fs faces) (out '()))
+             (if (null? fs) out
+                 (let ((c (alist-ref (car fs) 'constraint)))
+                   (loop (cdr fs) (if (string? c) (cons c out) out))))))))
+       ((string=? (string-or-symbol->string kind) "projection")
+        ;; no additional strings beyond possible constraints handled elsewhere
+        '())
+       ((string=? (string-or-symbol->string kind) "transition")
+        (let ((cr (alist-ref r 'coefficients_ref)))
+          (if (string? cr) (list cr) '())))
+       ((string=? (string-or-symbol->string kind) "validation")
+        (let ((h (alist-ref r 'hash)))
+          (if (string? h) (list h) '())))
+       ((string=? (string-or-symbol->string kind) "commit")
+        (let ((sh (alist-ref r 'state_hash))
+              (ph (alist-ref r 'previous))
+              (dev (alist-ref r 'device)))
+          (append (if (string? sh) (list sh) '())
+                  (if (string? ph) (list ph) '())
+                  (if (string? dev) (list dev) '()))))
+       (else '()))))
+
   (let* ((strings (let loop ((xs records) (out '()))
                     (if (null? xs)
                         out
-                        (let* ((r (car xs))
-                               (h (alist-ref r 'hash)))
-                          (loop (cdr xs) (if (string? h) (cons h out) out))))))
+                        (loop (cdr xs) (append (collect-strings-record (car xs)) out)))))
          (table (clbc-make-string-table strings))
          (compiled (let loop2 ((xs records) (out '()))
                      (if (null? xs)

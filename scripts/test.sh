@@ -135,6 +135,7 @@ echo "CanvasL 1.0 Engine Tests"
 echo "------------------------"
 
 run_test "CanvasL 1.0 JSONL engine (NRR+CLBC+VIZ)" "bash tests/canvasl/run-canvasl-1.0-engine.sh >/dev/null"
+run_test "Byte-stable determinism matrix (permute+dedupe+corrupt)" "bash tests/canvasl/run-determinism-matrix.sh >/dev/null"
 
 # Test 7: Coq file exists and has no Admitted
 if [ -f "src/coq/Fano_PCG.v" ]; then

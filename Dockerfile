@@ -9,6 +9,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     guile-3.0 \
+    nodejs \
+    npm \
     python3 \
     python3-pip \
     curl \
@@ -28,6 +30,8 @@ WORKDIR /build
 
 # Copy source files
 COPY src/ ./src/
+COPY apps/ ./apps/
+COPY tools/ ./tools/
 COPY schemas/ ./schemas/
 COPY scripts/ ./scripts/
 COPY tests/ ./tests/
@@ -52,6 +56,8 @@ RUN useradd -m -u 1000 bicf && \
 
 # Copy built artifacts
 COPY --from=build --chown=bicf:bicf /build/src ./src
+COPY --from=build --chown=bicf:bicf /build/apps ./apps
+COPY --from=build --chown=bicf:bicf /build/tools ./tools
 COPY --from=build --chown=bicf:bicf /build/schemas ./schemas
 COPY --from=build --chown=bicf:bicf /build/scripts ./scripts
 COPY --from=build --chown=bicf:bicf /build/tests ./tests

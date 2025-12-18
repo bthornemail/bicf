@@ -40,6 +40,13 @@ case "$1" in
     shift
     guile -s /app/deployment/health-endpoint.scm metrics
     ;;
+  lsp)
+    shift
+    # Run TCP LSP server (recommended for k8s)
+    : "${CANVASL_LSP_PORT:=7000}"
+    export CANVASL_LSP_PORT
+    node /app/apps/lsp/canvasl-lsp.js
+    ;;
   *)
     exec "$@"
     ;;

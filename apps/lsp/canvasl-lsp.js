@@ -9,6 +9,7 @@
 
 const fs = require("fs");
 const cp = require("child_process");
+const net = require("net");
 
 function readMessage(buffer) {
   const headerEnd = buffer.indexOf("\r\n\r\n");
@@ -25,13 +26,12 @@ function readMessage(buffer) {
   return { msg: JSON.parse(body), rest };
 }
 
-function writeMessage(obj) {
+function writeMessageTo(stream, obj) {
   const json = JSON.stringify(obj);
   const out = `Content-Length: ${Buffer.byteLength(json, "utf8")}\r\n\r\n${json}`;
-  process.stdout.write(out);
+  stream.write(out);
 }
 
-let buf = Buffer.alloc(0);
 let shutdownRequested = false;
 
 function runGuile(expr) {
@@ -189,6 +189,59 @@ function handleRequest(req) {
     return okResponse(id, { type: "fano", points: [0,1,2,3,4,5,6], lines: [[0,1,3],[0,2,6],[0,4,5],[1,2,4],[1,5,6],[2,3,5],[3,4,6]] });
   }
 
+  if (method === "canvasl/getCanonicalDigest") {
+    const jsonlPath = params?.jsonlPath;
+    if (!jsonlPath || typeof jsonlPath !== "string") {
+      return errResponse(id, -32602, "Invalid params: expected { jsonlPath: string }");
+    }
+    if (!fs.existsSync(jsonlPath)) {
+      return errResponse(id, -32602, `Invalid params: jsonlPath not found: ${jsonlPath}`);
+    }
+
+    // Canonical bytes identity: trace_id = sha256(CLBC_container_bytes)
+    // Return a small witness so E2E can verify byte stability without shipping the full blob.
+    const expr = `
+      (load "${process.cwd()}/src/canvasl/canvasl1-jsonl.scm")
+      (load "${process.cwd()}/src/nrr/hash.scm")
+      (define (read-lines p)
+        (call-with-input-file p
+          (lambda (port)
+            (let loop ((out (quote ())))
+              (let ((line (read-line port)))
+                (if (eof-object? line)
+                    (reverse out)
+                    (let ((t (string-trim-both line)))
+                      (if (or (string=? t "") (char=? (string-ref t 0) #\\#))
+                          (loop out)
+                          (loop (cons (normalize-record (parse-json-line t)) out))))))))))
+      (define recs (read-lines "${jsonlPath.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"))
+      (define clbc-recs (map canvasl1-record->clbc-record recs))
+      (define enc (canvasl-records->clbc clbc-recs))
+      (define bs (cdr enc))
+      (define hex (hash-content bs))
+      (define (take n xs) (if (or (<= n 0) (null? xs)) (quote ()) (cons (car xs) (take (- n 1) (cdr xs)))))
+      (define first (take 64 bs))
+      (define (hex2 n)
+        (let* ((h "0123456789abcdef") (hi (quotient n 16)) (lo (modulo n 16)))
+          (string (string-ref h hi) (string-ref h lo))))
+      (define (bytes->hex bs)
+        (let loop ((xs bs) (out (quote ())))
+          (if (null? xs)
+              (apply string-append (reverse out))
+              (loop (cdr xs) (cons (hex2 (car xs)) out)))))
+      (write (list
+        (cons (quote trace_id) (string-append "sha256:" hex))
+        (cons (quote clbc_size) (length bs))
+        (cons (quote clbc_first64_hex) (bytes->hex first))
+      ))
+    `;
+
+    const out = runGuile(expr);
+    const sexpr = parseSExprTokens(tokenizeSExpr(out));
+    const js = sexprToJs(sexpr);
+    return okResponse(id, js);
+  }
+
   return errResponse(id ?? null, -32601, `Method not found: ${method}`);
 }
 
@@ -201,26 +254,43 @@ function handleNotification(req) {
   // didOpen/didChange: ignore in MVP
 }
 
-process.stdin.on("data", (chunk) => {
-  buf = Buffer.concat([buf, chunk]);
-  while (true) {
-    const parsed = readMessage(buf);
-    if (!parsed) break;
-    buf = parsed.rest;
-    const msg = parsed.msg;
-    try {
-      if (msg && typeof msg.id !== "undefined") {
-        const resp = handleRequest(msg);
-        writeMessage(resp);
-      } else {
-        handleNotification(msg);
-      }
-    } catch (e) {
-      if (msg && typeof msg.id !== "undefined") {
-        writeMessage(errResponse(msg.id, -32603, String(e && e.message ? e.message : e)));
+function serveOnStream(stream) {
+  let buf = Buffer.alloc(0);
+  stream.on("data", (chunk) => {
+    buf = Buffer.concat([buf, chunk]);
+    while (true) {
+      const parsed = readMessage(buf);
+      if (!parsed) break;
+      buf = parsed.rest;
+      const msg = parsed.msg;
+      try {
+        if (msg && typeof msg.id !== "undefined") {
+          const resp = handleRequest(msg);
+          writeMessageTo(stream, resp);
+        } else {
+          handleNotification(msg);
+        }
+      } catch (e) {
+        if (msg && typeof msg.id !== "undefined") {
+          writeMessageTo(stream, errResponse(msg.id, -32603, String(e && e.message ? e.message : e)));
+        }
       }
     }
-  }
-});
+  });
+}
+
+const port = process.env.CANVASL_LSP_PORT ? Number(process.env.CANVASL_LSP_PORT) : 0;
+if (Number.isFinite(port) && port > 0) {
+  const server = net.createServer((socket) => {
+    // Single client per socket; deterministic, no shared mutable state beyond NRR/files.
+    serveOnStream(socket);
+  });
+  server.listen(port, "0.0.0.0", () => {
+    // eslint-disable-next-line no-console
+    console.error(`canvasl-lsp listening on tcp:${port}`);
+  });
+} else {
+  serveOnStream(process.stdin);
+}
 
 

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bicf-canvasl-lsp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bicf-canvasl-lsp
+  template:
+    metadata:
+      labels:
+        app: bicf-canvasl-lsp
+    spec:
+      containers:
+        - name: lsp
+          image: bicf-production:local
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CANVASL_LSP_PORT
+              value: "7000"
+            - name: CANVASL_JSONL_PATH
+              value: "/data/matrix.base.jsonl"
+            - name: GUILE_AUTO_COMPILE
+              value: "0"
+          ports:
+            - containerPort: 7000
+          volumeMounts:
+            - name: fixtures
+              mountPath: /data
+      volumes:
+        - name: fixtures
+          configMap:
+            name: canvasl-fixtures
+
+

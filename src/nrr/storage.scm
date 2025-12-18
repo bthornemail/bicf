@@ -140,6 +140,14 @@
 (define (serialize-content content)
   (cond
    ((string? content) content)
+   ;; Canonical byte payload (e.g., CLBC container bytes): store as Latin-1 string.
+   ;; This preserves 0..255 values roundtrip deterministically.
+   ((and (list? content)
+         (let loop ((xs content))
+           (if (null? xs) #t
+               (and (integer? (car xs)) (<= 0 (car xs)) (<= (car xs) 255)
+                    (loop (cdr xs))))))
+    (list->string (map integer->char content)))
    ((list? content)
     ;; Serialize alist or list to string
     (content-to-string content))
