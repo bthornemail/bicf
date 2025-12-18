@@ -1,7 +1,7 @@
 ;; ============================================================
 ;; CLBC reference VM (v1)
 ;; - Deterministic execution (parse+trace)
-;; - Produces transcript hash via src/nrr/hash.scm (currently simple-hash)
+;; - Produces transcript hash as sha256(canonical transcript bytes)
 ;; ============================================================
 
 (define (vm-dirname path)
@@ -21,13 +21,6 @@
 (vm-load-relative "../nrr/hash.scm")
 
 (use-modules (rnrs io ports))
-
-(define (bytes->latin1 bs)
-  (list->string (map integer->char bs)))
-
-(define (vm-hash-step prev-hash chunk-bytes)
-  ;; rolling hash: hash(prev || '|' || chunk)
-  (hash-content (string-append prev-hash "|" (bytes->latin1 chunk-bytes))))
 
 (define (take-bytes xs n)
   (let loop ((i 0) (ys xs) (out '()))
@@ -85,7 +78,7 @@
          (rs (cdr (assq 'record-stream decoded)))
          (errors '())
          (events 0)
-         (hash "nrr:0")
+         (transcript '())
          (idx 0))
 
     (define (fail msg)
@@ -93,12 +86,12 @@
 
     (define (emit chunk)
       (set! events (+ events 1))
-      (set! hash (vm-hash-step hash chunk)))
+      (set! transcript (bytes-append transcript chunk)))
 
     (let loop ()
       (if (>= idx (length rs))
           `((ok? . ,(null? errors))
-            (transcript-hash . ,hash)
+            (transcript-hash . ,(hash-content transcript))
             (events . ,events)
             (errors . ,(reverse errors)))
           (let ((op (list-ref rs idx)))
@@ -336,7 +329,7 @@
              (#t
               (fail (string-append "unknown opcode: " (number->string op)))
               `((ok? . #f)
-                (transcript-hash . ,hash)
+                (transcript-hash . ,(hash-content transcript))
                 (events . ,events)
                 (errors . ,(reverse errors))))))))))
 

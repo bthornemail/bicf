@@ -5,3 +5,7 @@ dev-docs
 /.lake
 .obsidian/workspace.json
 _build/
+esp-idf/
+.venv-esptool/
+
+embedded/esp32-clbc-sha/build/

@@ -7,3 +7,5 @@ data:
     {"schema":"canvasl-1.0","phase":1,"kind":"context","context":{"id":"c1","complexity":4,"shape":"tetrahedron","vertices":[{"id":"v2","role":"Σ","basis":"e1","value":2,"optional":false},{"id":"v1","role":"Q","basis":"e0","value":1,"optional":false},{"id":"v1","role":"Q","basis":"e0","value":1,"optional":false},{"id":"v4","role":"s","basis":"e5","value":0,"optional":false},{"id":"v3","role":"δ","basis":"e4","value":3,"optional":false}],"faces":[{"vertices":["v3","v1","v2"],"constraint":"fano"},{"vertices":["v2","v1","v3"],"constraint":"fano"}]}}
 
 
+
+
