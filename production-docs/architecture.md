@@ -376,7 +376,7 @@ docker run bicf/production:latest interpreter trace.jsonl
 
 **File:** `src/lean/fano_pcg.lean`
 
-**Status:** ✅ Complete and verified
+**Status:** ✅ 100% complete and verified - No `sorry` statements
 
 **Proves:**
 - Fano plane incidence axioms
@@ -392,7 +392,7 @@ docker run bicf/production:latest interpreter trace.jsonl
 
 **File:** `src/coq/Fano_PCG.v`
 
-**Status:** ⚠️ Proofs present; compilation depends on Coq+Dune toolchain availability
+**Status:** ✅ 100% complete - No `Admitted` statements ⚠️ Compilation environment-dependent
 
 **Proves:**
 - Fano plane uniqueness theorem
