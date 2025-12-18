@@ -8,6 +8,7 @@
 //   - canvasl/getIncidence
 
 const fs = require("fs");
+const cp = require("child_process");
 
 function readMessage(buffer) {
   const headerEnd = buffer.indexOf("\r\n\r\n");
@@ -32,6 +33,103 @@ function writeMessage(obj) {
 
 let buf = Buffer.alloc(0);
 let shutdownRequested = false;
+
+function runGuile(expr) {
+  // Deterministic tooling-only bridge to the Scheme implementation.
+  // Returns stdout as utf8 string (trimmed).
+  const out = cp.execFileSync("guile", ["-c", expr], { encoding: "utf8" });
+  return String(out).trim();
+}
+
+function tokenizeSExpr(s) {
+  const toks = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === ";" ) { // comment until newline
+      while (i < s.length && s[i] !== "\n") i++;
+      continue;
+    }
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === "(" || c === ")" || c === "." || c === "'") { toks.push(c); i++; continue; }
+    if (c === '"') {
+      let j = i + 1;
+      let out = "";
+      while (j < s.length) {
+        const ch = s[j];
+        if (ch === "\\") { out += s[j + 1] ?? ""; j += 2; continue; }
+        if (ch === '"') break;
+        out += ch; j++;
+      }
+      toks.push({ t: "str", v: out });
+      i = j + 1;
+      continue;
+    }
+    // symbol/number
+    let j = i;
+    while (j < s.length && !/\s/.test(s[j]) && !"()'".includes(s[j])) j++;
+    const atom = s.slice(i, j);
+    if (/^-?\d+$/.test(atom)) toks.push({ t: "num", v: Number(atom) });
+    else toks.push({ t: "sym", v: atom });
+    i = j;
+  }
+  return toks;
+}
+
+function parseSExprTokens(toks) {
+  let i = 0;
+  function parseOne() {
+    const tok = toks[i++];
+    if (tok === "(") {
+      const arr = [];
+      while (toks[i] !== ")") {
+        if (i >= toks.length) throw new Error("Unclosed list");
+        arr.push(parseOne());
+      }
+      i++; // )
+      return arr;
+    }
+    if (tok === "'") return parseOne(); // ignore quote marker
+    if (tok && typeof tok === "object") return tok;
+    throw new Error("Unexpected token: " + String(tok));
+  }
+  const expr = parseOne();
+  return expr;
+}
+
+function sexprToJs(x) {
+  if (x == null) return null;
+  if (typeof x === "string") return x;
+  if (x.t === "num") return x.v;
+  if (x.t === "str") return x.v;
+  if (x.t === "sym") {
+    if (x.v === "#t") return true;
+    if (x.v === "#f") return false;
+    return x.v;
+  }
+  if (Array.isArray(x)) {
+    // alist / dotted pairs often show as: [ {sym:key}, '.', value ]
+    // In our emitted scenes we mostly have lists like: (ContextRoot (ClosureEnvelope . none) ...)
+    // We'll try to turn any list of pairs into an object; otherwise array.
+    const maybeObj = {};
+    let allPairs = true;
+    for (const el of x) {
+      if (Array.isArray(el) && el.length === 3 && el[1] === "." && el[0]?.t === "sym") {
+        maybeObj[el[0].v] = sexprToJs(el[2]);
+      } else if (Array.isArray(el) && el.length >= 1 && el[0]?.t === "sym") {
+        // (Key (a . b) ...) -> treat as nested object with key name
+        const key = el[0].v;
+        maybeObj[key] = sexprToJs(el.slice(1));
+      } else {
+        allPairs = false;
+        break;
+      }
+    }
+    if (allPairs) return maybeObj;
+    return x.map(sexprToJs);
+  }
+  return x;
+}
 
 function okResponse(id, result) {
   return { jsonrpc: "2.0", id, result };
@@ -58,19 +156,33 @@ function handleRequest(req) {
   }
 
   if (method === "canvasl/getScene") {
-    // MVP: return a deterministic placeholder scene; actual engine wiring comes later.
-    return okResponse(id, {
-      ContextRoot: {
-        ClosureEnvelope: "none",
-        StructureProxy: "triangle",
-        IncidenceOverlay: { type: "fano", points: [0,1,2,3,4,5,6], lines: [[0,1,3],[0,2,6],[0,4,5],[1,2,4],[1,5,6],[2,3,5],[3,4,6]] },
-        TraceLayer: "none",
-      },
-    });
+    const k = Number(params?.k ?? 3);
+    const globalDecision = Boolean(params?.globalDecision ?? false);
+    const includeFano = Boolean(params?.includeFano ?? true);
+    const expr =
+      `(load "${process.cwd()}/src/viz/scene.scm") ` +
+      `(write (viz-make-scene ${Number.isFinite(k) ? k : 0} ${globalDecision ? "#t" : "#f"} ${includeFano ? "#t" : "#f"} ` +
+      `'(${[0,1,2,3,4,5,6].join(" ")}) ` +
+      `'((0 1 3) (0 2 6) (0 4 5) (1 2 4) (1 5 6) (2 3 5) (3 4 6))))`;
+    const out = runGuile(expr);
+    const sexpr = parseSExprTokens(tokenizeSExpr(out));
+    return okResponse(id, sexprToJs(sexpr));
   }
 
   if (method === "canvasl/getTrace") {
-    return okResponse(id, { transcriptHash: "nrr:0", events: 0 });
+    const clbcPath = params?.clbcPath;
+    if (!clbcPath || typeof clbcPath !== "string") {
+      return okResponse(id, { ok: false, error: "missing params.clbcPath" });
+    }
+    // Use the Scheme VM to produce the transcript hash deterministically.
+    const expr =
+      `(load "${process.cwd()}/tools/clbc-run.scm") ` +
+      `(let* ((bytes (read-file-bytes "${clbcPath}")) (res (vm-run-clbc-bytes bytes))) ` +
+      `(write res))`;
+    const out = runGuile(expr);
+    const sexpr = parseSExprTokens(tokenizeSExpr(out));
+    const js = sexprToJs(sexpr);
+    return okResponse(id, js);
   }
 
   if (method === "canvasl/getIncidence") {

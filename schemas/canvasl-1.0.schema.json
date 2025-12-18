@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canvasl.dev/schemas/canvasl-1.0.schema.json",
+  "title": "CanvasL v1.0 Record Schema",
+  "type": "object",
+  "required": ["schema", "phase", "kind"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "canvasl-1.0"
+    },
+    "phase": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["context", "transition", "validation", "projection", "commit"]
+    },
+    "context": { "$ref": "#/$defs/Context" },
+    "apply": { "$ref": "#/$defs/Apply" },
+    "checks": { "$ref": "#/$defs/Checks" },
+    "result": { "type": "boolean" },
+    "hash": { "$ref": "#/$defs/HashRef" },
+    "type": { "type": "string", "enum": ["fano"] },
+    "input_context": { "type": "string", "minLength": 1 },
+    "points": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0 },
+      "minItems": 1
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "integer", "minimum": 0 },
+        "minItems": 3,
+        "maxItems": 3
+      }
+    },
+    "state_hash": { "$ref": "#/$defs/HashRef" },
+    "previous": { "$ref": "#/$defs/HashRef" },
+    "device": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "integer", "minimum": 0 }
+  },
+  "allOf": [
+    { "if": { "properties": { "kind": { "const": "context" } } }, "then": { "required": ["context"] } },
+    { "if": { "properties": { "kind": { "const": "transition" } } }, "then": { "required": ["apply"] } },
+    { "if": { "properties": { "kind": { "const": "validation" } } }, "then": { "required": ["checks", "result"] } },
+    { "if": { "properties": { "kind": { "const": "projection" } } }, "then": { "required": ["type", "input_context", "points", "lines"] } },
+    { "if": { "properties": { "kind": { "const": "commit" } } }, "then": { "required": ["state_hash", "previous", "device", "timestamp"] } }
+  ],
+  "$defs": {
+    "HashRef": {
+      "type": "string",
+      "pattern": "^(sha256:|hash:)[a-zA-Z0-9._-]{3,}$"
+    },
+    "Role": { "type": "string", "enum": ["Q", "Σ", "L", "R", "δ", "s", "t", "r"] },
+    "Basis": { "type": "string", "pattern": "^e[0-7]$" },
+    "Shape": {
+      "type": "string",
+      "enum": ["point", "line", "face", "tetrahedron", "5-cell", "octahedron", "cube", "envelope"]
+    },
+    "Vertex": {
+      "type": "object",
+      "required": ["id", "role", "basis", "optional"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "role": { "$ref": "#/$defs/Role" },
+        "basis": { "$ref": "#/$defs/Basis" },
+        "value": { "type": ["number", "integer", "string", "boolean", "null"] },
+        "optional": { "type": "boolean" }
+      }
+    },
+    "Edge": {
+      "type": "object",
+      "required": ["from", "to", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 },
+        "weight": { "type": ["number", "integer"] }
+      }
+    },
+    "Face": {
+      "type": "object",
+      "required": ["vertices"],
+      "additionalProperties": false,
+      "properties": {
+        "vertices": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "constraint": { "type": "string", "enum": ["fano"] }
+      }
+    },
+    "Key": {
+      "type": "object",
+      "required": ["id", "authority", "mutable"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "authority": { "type": "string", "enum": ["local", "shared"] },
+        "mutable": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "authority": { "const": "shared" } } },
+          "then": { "properties": { "mutable": { "const": false } } }
+        }
+      ]
+    },
+    "Context": {
+      "type": "object",
+      "required": ["id", "complexity", "shape", "vertices"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "complexity": { "type": "integer", "minimum": 1 },
+        "shape": { "$ref": "#/$defs/Shape" },
+        "vertices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Vertex" },
+          "minItems": 1
+        },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/Edge" } },
+        "faces": { "type": "array", "items": { "$ref": "#/$defs/Face" } },
+        "key": { "$ref": "#/$defs/Key" },
+        "metadata": { "type": "object" }
+      },
+      "allOf": [
+        { "if": { "properties": { "complexity": { "const": 1 } } }, "then": { "properties": { "shape": { "const": "point" } } } },
+        { "if": { "properties": { "complexity": { "const": 2 } } }, "then": { "properties": { "shape": { "const": "line" } } } },
+        { "if": { "properties": { "complexity": { "const": 3 } } }, "then": { "properties": { "shape": { "const": "face" } } } },
+        { "if": { "properties": { "complexity": { "const": 4 } } }, "then": { "properties": { "shape": { "const": "tetrahedron" } } } },
+        { "if": { "properties": { "complexity": { "const": 5 } } }, "then": { "properties": { "shape": { "const": "5-cell" } } } },
+        { "if": { "properties": { "complexity": { "const": 6 } } }, "then": { "properties": { "shape": { "const": "octahedron" } } } },
+        { "if": { "properties": { "complexity": { "const": 7 } } }, "then": { "properties": { "shape": { "const": "cube" } } } },
+        { "if": { "properties": { "complexity": { "minimum": 8 } } }, "then": { "properties": { "shape": { "const": "envelope" } } } }
+      ]
+    },
+    "Apply": {
+      "type": "object",
+      "required": ["operator"],
+      "additionalProperties": false,
+      "properties": {
+        "operator": { "type": "string", "enum": ["poly", "rewrite", "map"] },
+        "coefficients_ref": { "$ref": "#/$defs/HashRef" },
+        "variables": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "output": { "type": "string", "minLength": 1 }
+      }
+    },
+    "Checks": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["schema", "boundary", "fano", "area", "hash"] },
+      "minItems": 1
+    }
+  }
+}
+
+

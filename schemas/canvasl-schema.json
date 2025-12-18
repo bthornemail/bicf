@@ -1,18 +1,3 @@
-# CanvasL JSONL Schema
-
-## Overview
-Formal JSONL schema for CanvasL-POLY execution with BICF compliance.
-
-## Schema Version
-1.0.0
-
-## Core Record Types
-- `boundary` - Boundary definition with constraints
-- `ticket` - 3-element subset for PCG verification
-- `guarantee` - Verified combinatorial guarantee
-
-## Schema Definition
-```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canvasl.org/schema/canvasl-v1.json",
@@ -144,13 +129,3 @@ Formal JSONL schema for CanvasL-POLY execution with BICF compliance.
     }
   }
 }
-```
-
-## Validation Rules
-- All records must be sequential by phase
-- No forward references in inputs
-- Single boundary per file
-- Anchor consistency across phases
-
-## Extensions
-Schema is extensible for future CanvasL dialects while maintaining backward compatibility.

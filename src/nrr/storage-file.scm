@@ -33,9 +33,23 @@
 (define (ensure-repo-structure repo-path)
   (if (not (string? repo-path))
       (error "ensure-repo-structure: expected string" repo-path)
-      ;; In R5RS, directory creation may not be available
-      ;; This is a placeholder - would use system calls in production
-      #t))
+      ;; Use deterministic directory creation via mkdir -p.
+      ;; This keeps the backend functional on real systems while remaining deterministic.
+      (begin
+        (system (string-append "mkdir -p " repo-path "/objects"))
+        #t)))
+
+;; ensure-parent-dir: ensure the parent directory for a path exists
+(define (ensure-parent-dir path)
+  (let loop ((i (- (string-length path) 1)))
+    (if (< i 0)
+        #t
+        (if (char=? (string-ref path i) #\/)
+            (let ((dir (if (= i 0) "/" (substring path 0 i))))
+              (begin
+                (system (string-append "mkdir -p " dir))
+                #t))
+            (loop (- i 1))))))
 
 ;; file-put: Store content in file system, return reference
 (define (file-put repo-path content)
@@ -49,6 +63,7 @@
             ;; Store in objects/ab/cd/abcd1234... structure
             (let ((object-path (make-object-path repo-path hash)))
               ;; Write content to file
+              (ensure-parent-dir object-path)
               (write-file object-path serialized)
               ref)))))
 

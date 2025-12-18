@@ -60,22 +60,15 @@ run_test "CanvasL interpreter exists" "[ -f src/canvasl/interpreter.scm ]"
 # Test 5: Schema validation
 if command -v python3 >/dev/null 2>&1; then
     TESTS_RUN=$((TESTS_RUN + 1))
-    echo -n "Running: CanvasL schema is valid JSON... "
+    echo -n "Running: CanvasL schemas are valid JSON... "
     if python3 -c "
 import json
 import sys
 try:
-    with open('schemas/canvasl-schema.json', 'r') as f:
-        content = f.read()
-        json_start = content.find('{')
-        json_end = content.rfind('}') + 1
-        if json_start >= 0 and json_end > json_start:
-            json_str = content[json_start:json_end]
-            json.loads(json_str)
-            sys.exit(0)
-        else:
-            json.loads(content)
-            sys.exit(0)
+    for p in ['schemas/canvasl-schema.json', 'schemas/canvasl-1.0.schema.json']:
+        with open(p, 'r') as f:
+            json.loads(f.read())
+    sys.exit(0)
 except Exception as e:
     sys.exit(1)
 " > /dev/null 2>&1; then
@@ -131,6 +124,12 @@ echo "Visualization Tests"
 echo "-------------------"
 
 run_test "RFC-VIZ-001 scene snapshot" "bash tests/viz/run-scene-snapshot.sh >/dev/null"
+
+echo ""
+echo "CanvasL 1.0 Engine Tests"
+echo "------------------------"
+
+run_test "CanvasL 1.0 JSONL engine (NRR+CLBC+VIZ)" "bash tests/canvasl/run-canvasl-1.0-engine.sh >/dev/null"
 
 # Test 7: Coq file exists and has no Admitted
 if [ -f "src/coq/Fano_PCG.v" ]; then

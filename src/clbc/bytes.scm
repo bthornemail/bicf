@@ -24,6 +24,19 @@
             (logand (ash n -16) #xFF)
             (logand (ash n -24) #xFF))))
 
+(define (u64le-encode n)
+  (if (or (not (integer? n)) (< n 0))
+      (error "u64le-encode: expected non-negative integer" n)
+      ;; Encode into 8 bytes little-endian. (We don't cap to 2^64-1 here, but callers SHOULD.)
+      (list (logand n #xFF)
+            (logand (ash n -8) #xFF)
+            (logand (ash n -16) #xFF)
+            (logand (ash n -24) #xFF)
+            (logand (ash n -32) #xFF)
+            (logand (ash n -40) #xFF)
+            (logand (ash n -48) #xFF)
+            (logand (ash n -56) #xFF))))
+
 (define (bytes->string/latin1 bs)
   (list->string (map integer->char bs)))
 
@@ -50,5 +63,4 @@
               (begin
                 (bytevector-u8-set! bv i (car xs))
                 (loop (+ i 1) (cdr xs))))))))
-
 

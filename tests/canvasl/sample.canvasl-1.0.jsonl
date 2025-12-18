@@ -1,0 +1,5 @@
+{"schema":"canvasl-1.0","phase":1,"kind":"context","context":{"id":"c1","complexity":4,"shape":"tetrahedron","vertices":[{"id":"v1","role":"Q","basis":"e0","value":1,"optional":false},{"id":"v2","role":"Σ","basis":"e1","value":2,"optional":false},{"id":"v3","role":"δ","basis":"e4","value":3,"optional":false},{"id":"v4","role":"s","basis":"e5","value":0,"optional":false}],"key":{"id":"K","authority":"shared","mutable":false}}}
+{"schema":"canvasl-1.0","phase":2,"kind":"projection","type":"fano","input_context":"c1","points":[1,2,3,4,5,6,7],"lines":[[1,2,4],[2,3,5]]}
+{"schema":"canvasl-1.0","phase":3,"kind":"commit","state_hash":"sha256:abc","previous":"sha256:000","device":"test","timestamp":1}
+
+
