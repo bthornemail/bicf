@@ -7,6 +7,10 @@
 ;;     (op . "apply_encoder") (inputs . (...)) (outputs . (...)) ...)
 ;; ============================================================
 
+;; CanvasL v1.0 JSONL engine (schema="canvasl-1.0", kind=...)
+;; This is the canonical JSONL ingestion path going forward.
+(load (string-append (getcwd) "/src/canvasl/canvasl1-jsonl.scm"))
+
 ;; -----------------------------
 ;; Utilities: alist access
 ;; -----------------------------
@@ -356,3 +360,12 @@
 ;; (env-get final-env "state:decoded:t1")
 ;; (env-get final-env "proof:valid:t1")
 
+;; -----------------------------
+;; Public API: execute-canvasl (JSONL)
+;; -----------------------------
+
+;; Execute a CanvasL v1.0 JSONL file deterministically.
+;; Returns final engine state alist containing at least:
+;;   (phase . n) and (transcript . "hash:...")
+(define (execute-canvasl path)
+  (execute-canvasl1-jsonl path))

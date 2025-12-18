@@ -3,8 +3,7 @@
 ;; ESP32 flash sector support (placeholder)
 ;; ============================================================
 
-(load "storage.scm")
-(load "hash.scm")
+;; Loaded via `src/nrr/storage.scm` (avoid CWD-relative loads).
 
 ;; -----------------------------
 ;; Embedded Storage Interface
@@ -50,4 +49,3 @@
 ;; ============================================================
 ;; End of Embedded Storage (Placeholder)
 ;; ============================================================
-

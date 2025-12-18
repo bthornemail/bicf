@@ -3,8 +3,7 @@
 ;; Minimal memory footprint for testing and embedded systems
 ;; ============================================================
 
-(load "hash.scm")
-(load "storage.scm")
+;; Loaded via `src/nrr/storage.scm` (avoid CWD-relative loads).
 
 ;; -----------------------------
 ;; In-Memory Storage
@@ -24,14 +23,14 @@
 (define (memory-put content)
   (if (not (string? content))
       (error "memory-put: expected string" content)
-      (let ((serialized (serialize-content content))
-            (ref (make-nrr-ref serialized)))
+      (let* ((payload (serialize-content content))
+             (ref (make-nrr-ref payload)))
         ;; Check if already stored (deduplication)
         (let ((existing (assoc ref *memory-storage*)))
           (if existing
               ref
               (begin
-                (set! *memory-storage* (cons (cons ref serialized) *memory-storage*))
+                (set! *memory-storage* (cons (cons ref payload) *memory-storage*))
                 ref))))))
 
 ;; memory-get: Retrieve content from memory by reference
@@ -54,4 +53,3 @@
 ;; ============================================================
 ;; End of In-Memory Storage
 ;; ============================================================
-

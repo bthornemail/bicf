@@ -3,9 +3,23 @@
 ;; Binary log format with CanvasL compatibility
 ;; ============================================================
 
-(load "hash.scm")
-(load "storage.scm")
-(load "log-entry.scm")
+;; Load relative to this file so tools can load `src/nrr/log.scm` from any CWD.
+(define *nrr-log-base-dir*
+  (let ((cf (current-filename)))
+    (if (and cf (string? cf))
+        (let loop ((i (- (string-length cf) 1)))
+          (if (< i 0) "."
+              (if (char=? (string-ref cf i) #\/)
+                  (if (= i 0) "/" (substring cf 0 i))
+                  (loop (- i 1)))))
+        (getcwd))))
+
+(define (nrr-log-load-relative rel)
+  (load (string-append *nrr-log-base-dir* "/" rel)))
+
+(nrr-log-load-relative "hash.scm")
+(nrr-log-load-relative "storage.scm")
+(nrr-log-load-relative "log-entry.scm")
 
 ;; -----------------------------
 ;; Log Storage
@@ -25,8 +39,8 @@
       (error "nrr-append: expected LogEntry" entry)
       (begin
         ;; Store entry content via NRR storage
-        (let ((entry-content (serialize-log-entry entry))
-              (entry-ref (nrr-put entry-content)))
+        (let* ((entry-content (serialize-log-entry entry))
+               (entry-ref (nrr-put entry-content)))
           ;; Append to log
           (set! *log-entries* (append *log-entries* (list entry)))
           #t))))
@@ -111,12 +125,16 @@
             (error "load-log: cannot open file" log-path)))))
 
 ;; Helper: read-line
+(define *nrr-eof*
+  (let ((p (open-input-string "")))
+    (read-char p)))
+
 (define (read-line port)
   (let loop ((chars '())
              (ch (read-char port)))
     (if (eof-object? ch)
         (if (null? chars)
-            (eof-object)
+            *nrr-eof*
             (list->string (reverse chars)))
         (if (char=? ch #\newline)
             (list->string (reverse chars))
@@ -125,4 +143,3 @@
 ;; ============================================================
 ;; End of Append-Only Log
 ;; ============================================================
-

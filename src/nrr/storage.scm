@@ -3,7 +3,28 @@
 ;; Storage backend abstraction
 ;; ============================================================
 
-(load "hash.scm")
+;; Load helpers relative to this file so tools can load `src/nrr/storage.scm`
+;; from any working directory deterministically.
+(define (nrr-dirname path)
+  (if (not (string? path))
+      (error "nrr-dirname: expected string" path)
+      (let loop ((i (- (string-length path) 1)))
+        (if (< i 0)
+            "."
+            (if (char=? (string-ref path i) #\/)
+                (if (= i 0) "/" (substring path 0 i))
+                (loop (- i 1)))))))
+
+(define (nrr-load-relative rel)
+  (load (string-append *nrr-base-dir* "/" rel)))
+
+(define *nrr-base-dir*
+  (let ((cf (current-filename)))
+    (if (and cf (string? cf))
+        (nrr-dirname cf)
+        (getcwd))))
+
+(nrr-load-relative "hash.scm")
 
 ;; -----------------------------
 ;; Storage Backend Interface
@@ -90,20 +111,24 @@
          (if (null? args)
              (error "init-nrr: file backend requires path")
              (let ((path (car args)))
-               (load "storage-file.scm")
-               (if (defined? 'make-file-backend)
-                   (set-storage-backend (make-file-backend path))
-                   (error "init-nrr: file backend not available")))))
+               (nrr-load-relative "storage-file.scm")
+               (catch #t
+                 (lambda ()
+                   (set-storage-backend (make-file-backend path)))
+                 (lambda (key . args2)
+                   (error "init-nrr: file backend not available"))))))
         ((memory)
-         (load "storage-memory.scm")
-         (if (defined? 'make-memory-backend)
-             (set-storage-backend (make-memory-backend))
-             (error "init-nrr: memory backend not available")))
+         (nrr-load-relative "storage-memory.scm")
+         (catch #t
+           (lambda () (set-storage-backend (make-memory-backend)))
+           (lambda (key . args2)
+             (error "init-nrr: memory backend not available"))))
         ((embedded)
-         (load "storage-embedded.scm")
-         (if (defined? 'make-embedded-backend)
-             (set-storage-backend (make-embedded-backend))
-             (error "init-nrr: embedded backend not available")))
+         (nrr-load-relative "storage-embedded.scm")
+         (catch #t
+           (lambda () (set-storage-backend (make-embedded-backend)))
+           (lambda (key . args2)
+             (error "init-nrr: embedded backend not available"))))
         (else
          (error "init-nrr: unknown backend type" backend-type)))))
 
@@ -160,4 +185,3 @@
 ;; ============================================================
 ;; End of Storage Interface
 ;; ============================================================
-

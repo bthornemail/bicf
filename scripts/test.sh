@@ -15,6 +15,11 @@ NC='\033[0m' # No Color
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# Keep Guile deterministic and sandbox-friendly (no writes to ~/.cache).
+export GUILE_AUTO_COMPILE=0
+export GUILE_AUTO_COMPILE_VERBOSE=0
+export GUILE_LOAD_COMPILED_PATH=
+
 # Test status
 TEST_STATUS=0
 TESTS_RUN=0
@@ -305,4 +310,3 @@ else
     echo -e "${RED}Some tests failed${NC}"
     exit 1
 fi
-

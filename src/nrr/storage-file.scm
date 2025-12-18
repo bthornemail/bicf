@@ -3,8 +3,7 @@
 ;; Directory structure: /repo/objects/, /repo/log.bin
 ;; ============================================================
 
-(load "hash.scm")
-(load "storage.scm")
+;; Loaded via `src/nrr/storage.scm` (avoid CWD-relative loads).
 
 ;; -----------------------------
 ;; File Storage Structure
@@ -57,14 +56,14 @@
       (error "file-put: expected string path" repo-path)
       (if (not (string? content))
           (error "file-put: expected string content" content)
-          (let ((serialized (serialize-content content))
-                (ref (make-nrr-ref serialized))
-                (hash (extract-hash-from-ref ref)))
+          (let* ((payload (serialize-content content))
+                 (ref (make-nrr-ref payload))
+                 (hash (extract-hash-from-ref ref)))
             ;; Store in objects/ab/cd/abcd1234... structure
             (let ((object-path (make-object-path repo-path hash)))
               ;; Write content to file
               (ensure-parent-dir object-path)
-              (write-file object-path serialized)
+              (write-file object-path payload)
               ref)))))
 
 ;; make-object-path: Generate object file path from hash
@@ -73,11 +72,11 @@
       (error "make-object-path: expected string" repo-path)
       (if (not (string? hash))
           (error "make-object-path: expected string hash" hash)
-          (let ((prefix-len (min 2 (string-length hash)))
-                (prefix (substring hash 0 prefix-len))
-                (suffix (if (> (string-length hash) 2)
-                            (substring hash 2)
-                            "")))
+          (let* ((prefix-len (min 2 (string-length hash)))
+                 (prefix (substring hash 0 prefix-len))
+                 (suffix (if (> (string-length hash) 2)
+                             (substring hash 2)
+                             "")))
             (string-append repo-path "/objects/" prefix "/" suffix)))))
 
 ;; file-get: Retrieve content from file system by reference
@@ -86,10 +85,10 @@
       (error "file-get: expected string path" repo-path)
       (if (not (string? ref))
           (error "file-get: expected string reference" ref)
-          (let ((hash (if (nrr-ref? ref)
-                         (extract-hash-from-ref ref)
-                         ref))
-                (object-path (make-object-path repo-path hash)))
+          (let* ((h (if (nrr-ref? ref)
+                        (extract-hash-from-ref ref)
+                        ref))
+                 (object-path (make-object-path repo-path h)))
             ;; Read content from file
             (let ((content (read-file object-path)))
               (if content
@@ -133,4 +132,3 @@
 ;; ============================================================
 ;; End of File-Based Storage
 ;; ============================================================
-

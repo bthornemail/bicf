@@ -17,6 +17,7 @@
 ;; ============================================================
 
 (use-modules (json))
+(use-modules (ice-9 rdelim))
 
 (define (dirname path)
   (if (not (string? path)) (error "dirname: expected string" path)
@@ -35,16 +36,39 @@
 (load-relative "src/nrr/storage.scm")
 (load-relative "src/nrr/log.scm")
 (load-relative "src/nrr/log-entry.scm")
-(load-relative "src/clbc/compiler.scm")
-(load-relative "src/vm/clbc-vm.scm")
 (load-relative "src/viz/scene.scm")
 
 (define (alist-ref a k) (let ((p (assq k a))) (if p (cdr p) #f)))
 
 (define (json-object->alist obj)
   ;; obj is a guile-json "object" = alist of (string . value)
-  (map (lambda (p)
-         (cons (string->symbol (car p)) (json->scheme (cdr p))))
+  (define (json-kv? x)
+    (or (and (pair? x) (string? (car x)))      ; ("k" . v) or ("k" v1 v2 ...)
+        (and (list? x) (pair? x) (string? (car x)))))
+  (define (kv-key kv) (car kv))
+  (define (kv-value kv)
+    ;; guile-json may represent nested objects as: ("key" ("a" . 1) ("b" . 2))
+    (cond
+     ((pair? kv)
+      (let ((tail (cdr kv)))
+        (cond
+         ((and (pair? tail) (null? (cdr tail))) (car tail)) ;; ("k" v)
+         ((and (pair? tail) (pair? (car tail)) (string? (caar tail))) tail) ;; ("k" (("a" . 1) ...))
+         (else tail))))
+     (else (error "unexpected json kv" kv))))
+  (define (canon x)
+    (cond
+     ((and (list? x) (every json-kv? x))
+      (json-object->alist x))
+     ((vector? x) (map canon (vector->list x)))
+     ((list? x) (map canon x))
+     (else x)))
+  (define (every pred xs)
+    (cond ((null? xs) #t)
+          ((pred (car xs)) (every pred (cdr xs)))
+          (else #f)))
+  (map (lambda (kv)
+         (cons (string->symbol (kv-key kv)) (canon (kv-value kv))))
        obj))
 
 (define (read-jsonl path)
@@ -59,20 +83,11 @@
              ((or (not (string? line)) (= (string-length line) 0))
               (loop out))
              (else
-              (let* ((j (call-with-input-string line json->scm))
+             (let* ((j (call-with-input-string line json->scm))
                      (a (if (and (list? j) (pair? j) (string? (caar j)))
                             (json-object->alist j)
                             (error "expected json object per line" line))))
-                (loop (cons (cons '(_raw-line . line) a) out))))))))))
-
-(define (read-line port)
-  (let loop ((chars '())
-             (ch (read-char port)))
-    (if (eof-object? ch)
-        (if (null? chars) (eof-object) (list->string (reverse chars)))
-        (if (char=? ch #\newline)
-            (list->string (reverse chars))
-            (loop (cons ch chars) (read-char port))))))
+                (loop (cons (cons (cons '_raw-line line) a) out))))))))))
 
 (define (ensure pred msg x) (if (pred x) x (error msg x)))
 
@@ -172,22 +187,55 @@
         (let ((k (kind->string (alist-ref (car xs) 'kind))))
           (if (string=? k "commit") #t (loop (cdr xs)))))))
 
-(define (records->clbc-vm-hash records)
-  ;; Convert JSON-derived records to the alist model expected by CLBC compiler:
-  ;; - ensure kind is a string
-  ;; - remove internal _raw-line
-  (let* ((records2 (map (lambda (r)
-                          (let ((k (kind->string (alist-ref r 'kind))))
-                            (cons (cons 'kind k)
-                                  (filter (lambda (p) (not (eq? (car p) '_raw-line))) r))))
-                        records))
-         (enc (canvasl-records->clbc records2))
-         (bytes (cdr enc))
-         (res (vm-run-clbc-bytes bytes)))
-    (alist-ref res 'transcript-hash)))
+(define (records->transcript-hash records)
+  ;; Deterministic rolling hash over raw JSONL lines.
+  ;; This is the canonical trace identity for the JSONL engine boundary.
+  (let loop ((xs records) (h "hash:0"))
+    (if (null? xs)
+        h
+        (let* ((raw (alist-ref (car xs) '_raw-line))
+               (h2 (string-append "hash:" (hash-content (string-append h "|" raw)))))
+          (loop (cdr xs) h2)))))
+
+(define (normalize-scene scene)
+  ;; src/viz/scene.scm returns: '((ContextRoot (ClosureEnvelope . ...) ...))
+  ;; Normalize to an alist: '((ContextRoot . ((ClosureEnvelope . ...) ...))).
+  (if (and (list? scene)
+           (= (length scene) 1)
+           (list? (car scene))
+           (pair? (car scene))
+           (symbol? (caar scene)))
+      (list (cons (symbol->string (caar scene)) (cdar scene)))
+      scene))
+
+(define (alist? x)
+  (and (list? x)
+       (let loop ((xs x))
+         (if (null? xs)
+             #t
+             (and (pair? (car xs))
+                  (let ((k (car (car xs))))
+                    (or (string? k) (symbol? k)))
+                  (loop (cdr xs)))))))
+
+(define (to-jsonable x)
+  ;; Guile JSON expects:
+  ;; - objects as alists of (string . value)
+  ;; - arrays as vectors
+  (cond
+   ((eq? x 'none) "none")
+   ((symbol? x) (symbol->string x))
+   ((alist? x)
+    (map (lambda (p)
+           (cons (if (symbol? (car p)) (symbol->string (car p)) (car p))
+                 (to-jsonable (cdr p))))
+         x))
+   ((list? x)
+    (list->vector (map to-jsonable x)))
+   (else x)))
 
 (define (emit-json x)
-  (display (scm->json-string x))
+  (display (scm->json-string (to-jsonable x)))
   (newline))
 
 (define (usage!)
@@ -211,9 +259,9 @@
                    (lines (caddr f)))
               (cond
                ((eq? mode 'scene)
-                (emit-json (viz-make-scene k has-decision has-fano points lines)))
+                (emit-json (normalize-scene (viz-make-scene k has-decision has-fano points lines))))
                ((eq? mode 'trace)
-                (emit-json `((transcriptHash . ,(records->clbc-vm-hash records)))))
+                (emit-json `((transcriptHash . ,(records->transcript-hash records)))))
                ((eq? mode 'incidence)
                 (emit-json `((type . "fano")
                              (present . ,(if has-fano #t #f))
@@ -233,5 +281,3 @@
      (else (usage!)))))
 
 (main (command-line))
-
-
