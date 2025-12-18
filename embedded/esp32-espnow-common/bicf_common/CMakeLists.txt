@@ -1,0 +1,16 @@
+idf_component_register(
+  SRCS
+    "bicf_espnow.c"
+    "bicf_jsonl.c"
+    "bicf_proto.c"
+    "bicf_sha.c"
+    "bicf_trie.c"
+    "clbc_vm.c"
+  INCLUDE_DIRS
+    "."
+  REQUIRES
+    esp_wifi
+    esp_netif
+    nvs_flash
+    mbedtls
+)

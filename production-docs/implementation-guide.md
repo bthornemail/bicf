@@ -1,6 +1,6 @@
 # BICF Production System - Implementation Guide
 
-**Version:** 1.0.0  
+**Version:** 1.1.0
 **Last Updated:** 2025-12-18
 
 This document provides detailed implementation information for the BICF Production System, including architecture, design decisions, code organization, and implementation patterns.
@@ -265,6 +265,25 @@ index.scm
 ### CanvasL Interpreter Module
 
 **File:** `src/canvasl/interpreter.scm`
+
+#### Dimensional Dependency Constraints (Normative)
+
+- **Canonical identity (all dimensions):** `rid = sha256(CLBC_bytes)`.
+- **0D–7D (engine):** `deps` is variable-size and gates eligibility (dependency closure); ordering is deterministic and independent of arrival time.
+- **8D–11D (public RPC):** validator enforces `|deps| = 2` (strict).
+- **12D–15D (remote RPC):** validator enforces `|deps| = 3` (strict) with frozen meaning:
+  - `deps[0] = prev_state`
+  - `deps[1] = trace_anchor`
+  - `deps[2] = content_anchor`
+- **+16D:** non-canonical metadata only; MUST NOT affect identity, validity, ordering, or derived state.
+
+#### Pascal Diagonal / Arity Principle (Normative)
+
+- Let `n` be the size of the candidate interaction set in scope (eligible events, anchors, nodes, constraints, targets).
+- Unconstrained enumeration is `~ 2^n` (combinatorial explosion).
+- Replayable interfaces deliberately enforce fixed arity `k` (a Pascal diagonal): `C(n,k) ~ n^k/k!` (polynomial).
+- In this repo: public RPC constrains `k=2` (8D–11D), and remote/carrier RPC constrains `k=3` (12D–15D); 0D–7D truth allows variable-size `deps` but forbids nondeterministic high-order enumeration.
+- Formal seal (Lean 4): `BicfProduction/Complexity.lean`.
 
 #### Data Structures
 
@@ -645,6 +664,15 @@ Custom methods exposed by the server (MVP):
 
 ---
 
+## Demos
+
+Demo index: `demos/README.md`
+
+- ESP-NOW A/B/C (terminal + asciinema): `demos/asciinema/espnow-abc/README.md`
+- ESP-NOW “Agreed Policy” (Three.js live + replay): `demos/threejs/espnow-policy-visualizer/README.md`
+
+---
+
 ## References
 
 - RFC-0001: Boundary–Interior Combinatorial Framework
@@ -652,6 +680,3 @@ Custom methods exposed by the server (MVP):
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
 - Lean 4 Formalization: `src/lean/fano_pcg.lean`
 - Coq Formalization: `src/coq/Fano_PCG.v`
-
-
-

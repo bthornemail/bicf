@@ -2,7 +2,11 @@
 
 **Last Updated:** 2025-12-18
 
-## 2025-12-18 (Tooling + deterministic harness update)
+---
+
+## Version 1.1.0 (2025-12-18)
+
+**Status:** Current release - Tooling + deterministic harness update
 
 ### Added
 
@@ -37,4 +41,63 @@
 
 - Updated `production-docs/api-reference.md`, `production-docs/architecture.md`, `production-docs/formal-verification.md`, `production-docs/implementation-guide.md` to reflect the above additions.
 
+---
 
+## Version 1.0.0 (2024-12-19)
+
+**Status:** Initial production release
+
+### Core Implementation
+
+- **BICF Core** - Complete R5RS Scheme implementation (`src/core/bicf-core.scm`)
+  - 5 axioms: Boundary-Interior duality, non-canonicity, boundary primacy, explicit realization, projection safety
+  - Type predicates and validation functions
+
+- **FANO Boundary Module** - PG(2,2) validator (`src/fano/fano-checker.scm`)
+  - Explicit incidence table (7 points, 7 lines)
+  - Exhaustive pairwise uniqueness checking
+
+- **PCG Consensus Module** - Pair-cover guarantee (`src/consensus/pcg-validator.scm`)
+  - 14-point universe (two Fano planes)
+  - Exhaustive O(n³) triple generation and coverage checking
+
+- **CanvasL Interpreter** - JSONL execution engine (`src/canvasl/interpreter.scm`)
+  - Environment management
+  - Encoder operations
+  - Trace execution with phase monotonicity
+
+### Formal Verification
+
+- **Lean 4** - `src/lean/fano_pcg.lean` (307 lines)
+  - ✅ 100% complete - All theorems proven, no `sorry` statements
+  - Core PCG theorem fully verified
+
+- **Coq** - `src/coq/Fano_PCG.v` (455 lines)
+  - ✅ 100% complete - All theorems proven, no `Admitted` statements
+  - Compilation environment-dependent
+
+### Testing & Infrastructure
+
+- Unit tests (`tests/unit/`)
+- Integration tests (`tests/integration/`)
+- Formal verification scripts (`tests/formal/`)
+- Build and test scripts (`scripts/build.sh`, `scripts/test.sh`)
+- CI/CD workflow (`.github/workflows/ci.yml`)
+
+### Documentation
+
+- Complete API reference
+- Architecture documentation
+- Formal verification status
+- Implementation guide
+- Usage guide
+- Validation reports
+
+---
+
+## Version History
+
+| Version | Date | Key Features |
+|---------|------|--------------|
+| 1.1.0 | 2025-12-18 | CLBC, VM, VIZ, LSP, deterministic testing |
+| 1.0.0 | 2024-12-19 | Core, FANO, PCG, CanvasL, formal proofs |

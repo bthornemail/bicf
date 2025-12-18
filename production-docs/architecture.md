@@ -38,6 +38,8 @@ The BICF Production System implements a layered architecture with clear separati
 3. **Explicit Interfaces:** All interactions through defined APIs
 4. **Formal Verification:** Core properties machine-verified
 5. **Determinism:** All operations are deterministic and replayable
+6. **Canonical Identity:** Events use `rid = sha256(CLBC_bytes)`; arrival time is irrelevant
+7. **Dialect Constraints:** 8D–11D enforces `|deps|=2`, 12D–15D enforces `|deps|=3`, +16D is non-canonical metadata only
 
 ---
 
@@ -600,6 +602,15 @@ GitHub Actions / GitLab CI
 
 ---
 
+## Demos
+
+Demo index: `demos/README.md`
+
+- ESP-NOW A/B/C (terminal + asciinema): `demos/asciinema/espnow-abc/README.md`
+- ESP-NOW “Agreed Policy” (Three.js live + replay): `demos/threejs/espnow-policy-visualizer/README.md`
+
+---
+
 ## References
 
 - RFC-0001: Boundary–Interior Combinatorial Framework
@@ -607,6 +618,4 @@ GitHub Actions / GitLab CI
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
 - [API Reference](api-reference.md)
 - [Implementation Guide](implementation-guide.md)
-
-
 

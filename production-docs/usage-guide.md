@@ -1,7 +1,7 @@
 # BICF Production System - Usage Guide
 
-**Version:** 1.0.0  
-**Last Updated:** 2024-12-19
+**Version:** 1.1.0
+**Last Updated:** 2025-12-18
 
 This guide provides step-by-step instructions for using the BICF Production System, including installation, basic usage, advanced patterns, and integration examples.
 

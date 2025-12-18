@@ -1,6 +1,6 @@
 # BICF Production System - Formal Verification Status
 
-**Version:** 1.0.0  
+**Version:** 1.1.0
 **Last Updated:** 2025-12-18
 
 This document describes the formal verification status of the BICF Production System, including Lean 4 and Coq formalizations, proof compilation status, and how to verify the proofs.

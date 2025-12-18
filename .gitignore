@@ -1,6 +1,6 @@
 dev-docs
 
-#Ignore cursor AI rules
+# Ignore cursor AI rules
 .cursor/rules/codacy.mdc
 /.lake
 .obsidian/workspace.json
@@ -8,4 +8,15 @@ _build/
 esp-idf/
 .venv-esptool/
 
-embedded/esp32-clbc-sha/build/
+# Python
+__pycache__/
+*.pyc
+
+# ESP-IDF / ESP32 builds (all projects)
+embedded/**/build/
+
+# asciinema renders (generated artifacts)
+demos/asciinema/**/render/
+
+# demo run artifacts
+demos/**/events.jsonl

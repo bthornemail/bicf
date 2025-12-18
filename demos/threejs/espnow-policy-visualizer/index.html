@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ESP32 A/B/C Policy Demo</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <div class="row">
+        <div class="pill">Live</div>
+        <div class="pill" id="status">connecting…</div>
+        <a class="pill" href="/events.jsonl" target="_blank" rel="noreferrer">events.jsonl</a>
+      </div>
+      <div id="policy">
+        <div class="title">Policy</div>
+        <div id="policyText" class="text">waiting…</div>
+        <div id="policyId" class="fingerprint"></div>
+        <div id="traceId" class="fingerprint"></div>
+      </div>
+      <div id="log"></div>
+    </div>
+    <canvas id="c"></canvas>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
+
