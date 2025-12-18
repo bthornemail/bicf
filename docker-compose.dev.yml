@@ -1,0 +1,189 @@
+version: '3.8'
+
+services:
+  # 1. Coq+Dune Builder Service
+  coq-dune-builder:
+    image: coqorg/coq:8.18
+    container_name: bicf-coq-builder
+    working_dir: /workspace/src/coq
+    volumes:
+      - ./src/coq:/workspace/src/coq:ro
+      - coq-build-cache:/workspace/src/coq/_build:rw
+    environment:
+      - COQ_VERSION=8.18
+      - DUNE_VERSION=3.0
+    command: >
+      sh -c "
+        dune build &&
+        echo 'Coq compilation completed successfully'
+      "
+    networks:
+      - bicf-dev
+
+  # 2. Lean 4 Verifier Service
+  lean-verifier:
+    image: leanprover/lean4:v4.26.0
+    container_name: bicf-lean-verifier
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+      - lean-cache:/workspace/.lake:rw
+    environment:
+      - LEAN_VERSION=v4.26.0
+    command: >
+      sh -c "
+        lake build &&
+        echo 'Checking for sorry/admit statements...' &&
+        if grep -qE '(sorry|admit)' src/lean/fano_pcg.lean 2>/dev/null; then
+          echo 'WARNING: Lean file contains sorry/admit statements'
+          exit 1
+        else
+          echo 'Lean verification completed - no sorry/admit found'
+        fi
+      "
+    networks:
+      - bicf-dev
+
+  # 3. Formal Verification Orchestrator
+  formal-verification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:dev
+    container_name: bicf-formal-verification
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+      - ./tests:/app/tests:rw
+    environment:
+      - BICF_ENV=testing
+      - BICF_LOG_LEVEL=info
+    command: >
+      sh -c "
+        echo '==========================================' &&
+        echo 'Formal Verification Orchestrator' &&
+        echo '==========================================' &&
+        echo '' &&
+        echo 'Running Coq verification...' &&
+        bash tests/formal/verify-coq.sh &&
+        echo '' &&
+        echo 'Running Lean verification...' &&
+        bash tests/formal/verify-lean.sh &&
+        echo '' &&
+        echo '==========================================' &&
+        echo 'Formal verification completed' &&
+        echo '=========================================='
+      "
+    depends_on:
+      - coq-dune-builder
+      - lean-verifier
+    networks:
+      - bicf-dev
+
+  # 4. E2E Testing Service
+  e2e-tester:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:dev
+    container_name: bicf-e2e-tester
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+      - ./tests:/app/tests:rw
+    environment:
+      - BICF_ENV=testing
+      - BICF_LOG_LEVEL=info
+      - GUILE_AUTO_COMPILE=0
+      - GUILE_AUTO_COMPILE_VERBOSE=0
+      - GUILE_LOAD_COMPILED_PATH=
+    command: ["bash", "scripts/test.sh"]
+    networks:
+      - bicf-dev
+
+  # 5. Demo Bridge Service (Three.js)
+  demo-bridge:
+    image: python:3.11-slim
+    container_name: bicf-demo-bridge
+    working_dir: /app
+    volumes:
+      - ./demos/threejs/espnow-policy-visualizer:/app:ro
+      - ./demos/threejs/espnow-policy-visualizer/events.jsonl:/app/events.jsonl:rw
+    ports:
+      - "8765:8765"
+    environment:
+      - BRIDGE_MODE=${BRIDGE_MODE:-replay}
+      - EVENTS_FILE=/app/events.jsonl
+    command: >
+      sh -c "
+        pip install --no-cache-dir pyserial websockets &&
+        if [ \"$$BRIDGE_MODE\" = \"replay\" ]; then
+          python3 bridge.py --replay $$EVENTS_FILE
+        else
+          python3 bridge.py --a $$PORT_A --b $$PORT_B --c $$PORT_C --out $$EVENTS_FILE
+        fi
+      "
+    networks:
+      - bicf-dev
+
+  # 6. Demo Viewer Service (Three.js Web)
+  demo-viewer:
+    image: nginx:alpine
+    container_name: bicf-demo-viewer
+    volumes:
+      - ./demos/threejs/espnow-policy-visualizer:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - demo-bridge
+    networks:
+      - bicf-dev
+
+  # 7. Asciinema Recorder Service
+  asciinema-recorder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: bicf/production:dev
+    container_name: bicf-asciinema-recorder
+    working_dir: /app
+    volumes:
+      - ./demos/asciinema:/app/demos/asciinema:rw
+      - /dev:/dev:ro
+    environment:
+      - PORT_A=${PORT_A:-}
+      - PORT_B=${PORT_B:-}
+      - PORT_C=${PORT_C:-}
+    command: >
+      sh -c "
+        if ! command -v asciinema >/dev/null 2>&1; then
+          echo 'Installing asciinema...' &&
+          pip install asciinema
+        fi &&
+        if [ -n \"$$PORT_A\" ] && [ -n \"$$PORT_B\" ] && [ -n \"$$PORT_C\" ]; then
+          bash demos/asciinema/espnow-abc/record.sh
+        else
+          echo 'Ports not set. Set PORT_A, PORT_B, PORT_C to record.' &&
+          echo 'Or run: bash demos/asciinema/espnow-abc/demo.sh for live demo'
+        fi
+      "
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+      - /dev/ttyUSB2:/dev/ttyUSB2
+    networks:
+      - bicf-dev
+
+volumes:
+  coq-build-cache:
+    driver: local
+  lean-cache:
+    driver: local
+
+networks:
+  bicf-dev:
+    driver: bridge
+

@@ -92,9 +92,30 @@ echo "Deployment complete!"
 - Git repository backups
 - Disaster recovery procedures
 
+## Development Environment
+
+For development, testing, and formal verification, use `docker-compose.dev.yml`:
+
+```bash
+# Run formal verification (Coq + Lean)
+./scripts/docker-dev.sh verify
+
+# Run E2E tests
+./scripts/docker-dev.sh test
+
+# Run demo in replay mode
+./scripts/docker-dev.sh demo-replay
+
+# Run demo in live mode (requires ESP32 devices)
+PORT_A=/dev/ttyUSB0 PORT_B=/dev/ttyUSB1 PORT_C=/dev/ttyUSB2 ./scripts/docker-dev.sh demo-live
+```
+
+See [`docker-compose.dev.README.md`](../docker-compose.dev.README.md) for full documentation.
+
 ## Status
 ✅ Production-ready deployment configuration
 ✅ Multi-environment support
 ✅ Comprehensive monitoring
 ✅ Security best practices
 ✅ Automated backup and recovery
+✅ Development environment with Coq+Dune and Lean 4 verification
