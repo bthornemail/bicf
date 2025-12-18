@@ -58,9 +58,9 @@
       (error "poly-add: expected poly" p1)
       (if (not (poly? p2))
           (error "poly-add: expected poly" p2)
-          (let ((p1-trimmed (trim p1))
-                (p2-trimmed (trim p2))
-                (max-len (max (length p1-trimmed) (length p2-trimmed))))
+          (let* ((p1-trimmed (trim p1))
+                 (p2-trimmed (trim p2))
+                 (max-len (max (length p1-trimmed) (length p2-trimmed))))
             (trim
              (let loop ((i 0)
                         (result '()))
@@ -191,8 +191,8 @@
                                       (if (not r-leading)
                                           (cons (reverse q) (trim r))
                                           ;; Multiply divisor by x^(r-deg - divisor-deg) and add to quotient
-                                          (let ((shift-amt (- r-deg divisor-deg))
-                                                (divisor-shifted (shift-left divisor-trimmed shift-amt)))
+                                          (let* ((shift-amt (- r-deg divisor-deg))
+                                                 (divisor-shifted (shift-left divisor-trimmed shift-amt)))
                                             (loop (cons #t q)
                                                   (trim (poly-add r divisor-shifted))))))))))))))))))
 

@@ -269,6 +269,30 @@ This system provides:
    - Lean 4: `src/lean/fano_pcg.lean` (see [Formal Verification](production-docs/formal-verification.md))
    - Coq: `src/coq/Fano_PCG.v` (see [Formal Verification](production-docs/formal-verification.md))
 
+4. **Run Build + Tests (recommended):**
+
+```bash
+./scripts/build.sh
+./scripts/test.sh
+```
+
+5. **Run Performance Benchmarks:**
+
+```bash
+./tests/performance/run-benchmark.sh
+```
+
+Benchmarks include:
+- **AAL polynomial operations** (`poly-add`, `poly-mul`, `poly-gcd`, `poly-lcm`, `poly-divmod`)
+- **BICF Core operations** (`realize`, `valid?`, `boundary?`, `interior?`)
+- **Allocation smoke test** (create 1000 boundaries)
+- **Polynomial scaling checks** (small/medium/large operand sizes)
+
+Notes:
+- **Guile 3.x** is required to run Scheme tests/benchmarks.
+- **Python 3** is used by `scripts/test.sh` for schema validation.
+- Lean 4 / Coq checks depend on your local toolchain; see [`production-docs/formal-verification.md`](production-docs/formal-verification.md).
+
 The BICF framework provides a complete implementation with:
 - **Formally verified** core components (Lean 4, Coq proofs)
 - **Full AAL compiler** with assembly generation

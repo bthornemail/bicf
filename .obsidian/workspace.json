@@ -1,0 +1,231 @@
+{
+  "main": {
+    "id": "4b61130c9612dbb3",
+    "type": "split",
+    "children": [
+      {
+        "id": "5a0402c4b6d98b33",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "50d3ed0c142f6b0b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dev-docs/Inbox/Important/CanvasL Language Server Protocol Architecture Mapping.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "CanvasL Language Server Protocol Architecture Mapping"
+            }
+          },
+          {
+            "id": "61711af2363af5ef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dev-docs/Inbox/Important/RFC-VIZ-001 Repo skeleton.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "RFC-VIZ-001 Repo skeleton"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9822676b5b9efead",
+    "type": "split",
+    "children": [
+      {
+        "id": "179c389fca21ad7d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "784c1966b155e065",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "0bffbdefd3c4e6b4",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "307d9911df18126f",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 504.5
+  },
+  "right": {
+    "id": "894bac2b46ee92f0",
+    "type": "split",
+    "children": [
+      {
+        "id": "7c2755ac68199c94",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d4213911bda3ac0d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "dev-docs/Inbox/Important/RFC-VIZ-001 Repo skeleton.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for RFC-VIZ-001 Repo skeleton"
+            }
+          },
+          {
+            "id": "ebca907eb47177f0",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "dev-docs/Inbox/Important/RFC-VIZ-001 Repo skeleton.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from RFC-VIZ-001 Repo skeleton"
+            }
+          },
+          {
+            "id": "be877982b244e45a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "181e86656254a11a",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "9383190eef6188b5",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "dev-docs/Inbox/Important/RFC-VIZ-001 Repo skeleton.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of RFC-VIZ-001 Repo skeleton"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "61711af2363af5ef",
+  "lastOpenFiles": [
+    "dev-docs/Inbox/Important/RFC-VIZ-001.md",
+    "dev-docs/Inbox/Important/RFC-VIZ-001 Repo skeleton.md",
+    "dev-docs/Inbox/Important/Unified Visualization Pattern for CanvasL.md",
+    "dev-docs/Inbox/Important/CanvasL Dimensional Pattern with 8–11D Extension Branch.md",
+    "dev-docs/Inbox/Important/CanvasL Language Server Protocol Architecture Mapping.md",
+    "dev-docs/Inbox/Important/Minimality and Completeness of NRR + LSP.md",
+    "dev-docs/Inbox/Important",
+    "dev-docs/Inbox/options.md",
+    "dev-docs/Inbox/Map CanvasL JSONL → ISA Bytecode (Deterministic, Emulator-Friendly).md",
+    "dev-docs/Inbox/Formal Justification - Minimality and Completeness of NRR + LSP.md",
+    "dev-docs/CanvasL Visualization Semantics.md",
+    "dev-docs/Visualization Semantics.md",
+    "dev-docs/Inbox/CanvasL Dimensional Visualization - React - Three.js Scene Graph.md",
+    "dev-docs/Inbox/Important/CanvasL + NRR + LSP — Reference Architecture.md",
+    "dev-docs/Inbox/CanvasL dimensions are mnemonic indices for repeated capability patterns.md",
+    "dev-docs/Inbox/Important/CanvasL 11-Dimensional Capability Architecture.md",
+    "dev-docs/Inbox/Important/CanvasL Dimensional Interface Architecture (Revised).md",
+    "dev-docs/Inbox/Important/CanvasL Dimensional Interface Architecture.md",
+    "dev-docs/Inbox/RFC-00X — Dimensional Visualization Semantics for CanvasL.md",
+    "dev-docs/Inbox/1766024334863-options.md",
+    "dev-docs/Inbox/1766024276062-First Principle for ESP32 (Very Important).md",
+    "dev-docs/Inbox/1766024249367-First Principle for ESP32 (Very Important).md",
+    "dev-docs/Inbox/1766024227960-First Principle for ESP32 (Very Important).md",
+    "dev-docs/Inbox/sdsd.md",
+    "dev-docs/Inbox/1766024166993-First Principle for ESP32 (Very Important).md",
+    "dev-docs/Inbox/CanvasL v1.0 validators.md",
+    "dev-docs/Inbox/1766024042845-First Principle for ESP32 (Very Important).md"
+  ]
+}

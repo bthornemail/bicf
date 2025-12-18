@@ -1286,3 +1286,4 @@ For large-scale use, consider:
 - RFC-0002: FANO Boundary Module (PG(2,2))
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
 
+

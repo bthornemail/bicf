@@ -157,7 +157,7 @@
               (let ((i1 (realize choice1 boundary))
                     (i2 (realize choice2 boundary)))
                 ;; They may be equal, but the point is that choice is required
-                (not (equal? choice1 choice2))))))
+                (not (equal? choice1 choice2)))))))
 
 ;; Axiom 3: Boundary Primacy in Transformation
 ;; Transformations that preserve validity MUST act on boundary structures rather than directly on interior state.
@@ -199,7 +199,7 @@
                 (and (view? view)
                      (let ((source-ref (cdr (assq 'source-ref view)))
                            (boundary-ref (cdr (assq 'boundary-ref interior))))
-                       (equal? source-ref boundary-ref)))))))
+                       (equal? source-ref boundary-ref))))))))
 
 ;; -----------------------------
 ;; Compliance Testing
@@ -254,4 +254,3 @@
 ;; ============================================================
 ;; End of BICF Core Implementation
 ;; ============================================================
-
