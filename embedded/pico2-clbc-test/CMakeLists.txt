@@ -13,6 +13,9 @@ add_executable(pico2_clbc_test
   src/clbc_vm.c
   src/sha256.c
   src/usb_descriptors.c
+  src/nrr_pico.c
+  src/canvasl_pico.c
+  src/json_parser_minimal.c
 )
 
 target_include_directories(pico2_clbc_test PRIVATE src)

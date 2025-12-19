@@ -21,3 +21,11 @@ demos/asciinema/**/render/
 
 # demo run artifacts
 demos/**/events.jsonl
+
+# Coq build artifacts
+src/coq/*.glob
+src/coq/*.vo
+src/coq/*.vos
+src/coq/*.vok
+src/coq/.*.aux
+.nia.cache

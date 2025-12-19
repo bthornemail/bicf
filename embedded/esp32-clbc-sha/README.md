@@ -16,7 +16,13 @@ From repo root:
 . ./esp-idf/export.sh
 
 cd embedded/esp32-clbc-sha
-idf.py -p /dev/ttyUSB0 flash monitor
+idf.py -p /dev/ttyUSB0 -b 115200 flash monitor
+```
+
+Or:
+
+```bash
+PORT=/dev/ttyUSB0 BAUD=115200 scripts/flash-esp32-clbc-sha.sh
 ```
 
 Expected output includes a line like:
@@ -25,4 +31,3 @@ Expected output includes a line like:
 CLBC_SHA256=<64 hex chars>
 CLBC_LEN=<n>
 ```
-

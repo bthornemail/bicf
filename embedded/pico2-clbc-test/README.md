@@ -56,3 +56,18 @@ guile -s tools/canvasl-to-clbc.scm tests/clbc/mini-validation.input.scm "$TMP_CL
 python3 tools/clbt-serial.py /dev/ttyACM0 "$TMP_CLBC"
 guile -s tools/clbc-run.scm "$TMP_CLBC" | rg '^transcript-hash:'
 ```
+
+## Validate + benchmark (scripts)
+
+From repo root:
+
+```bash
+scripts/demo-embedded-parity.sh --pico /dev/ttyACM0
+scripts/bench-embedded-parity.sh --pico /dev/ttyACM0 --runs 50
+```
+
+If you also have an ESP32 on USB UART running `embedded/esp32-clbc-sha`, you can include it:
+
+```bash
+scripts/demo-embedded-parity.sh --pico /dev/ttyACM0 --esp32 auto
+```
