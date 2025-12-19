@@ -12,14 +12,15 @@ ESP32 firmware that connects to WiFi, subscribes to MQTT commands, and runs CLBC
 
 ## Configuration
 
-Edit `main/main.c` to configure:
+Copy `main/config_local.example.h` to `main/config_local.h` and configure:
 
 ```c
-#define WIFI_SSID "YourNetwork"
-#define WIFI_PASSWORD "YourPassword"
-#define MQTT_BROKER_HOST "192.168.1.100"
+#define WIFI_SSID "YOUR_SSID"
+#define WIFI_PASSWORD "YOUR_PASSWORD"
+// For phone hotspot brokers, "gateway" usually works best.
+#define MQTT_BROKER_HOST "gateway"
 #define MQTT_BROKER_PORT 1883
-#define DEVICE_ID "esp32-a"  // or "esp32-b" for second device
+#define DEVICE_ID "esp32-a"  // set to "esp32-b" for the second device
 ```
 
 ## MQTT Topics
@@ -70,8 +71,7 @@ For heterogeneous network testing:
 
 1. **ESP32 A**: Flash with `DEVICE_ID="esp32-a"`
 2. **ESP32 B**: Flash with `DEVICE_ID="esp32-b"`
-3. **Pico W2**: Use USB CDC bridge (`tools/pico-mqtt-bridge.py`)
+3. **Pico 2 / Pico 2 W**: Use USB CDC bridge (`tools/pico-mqtt-bridge.py`)
 4. **MQTT Broker**: Run Mosquitto (`scripts/setup-3device-test.sh --start-broker`)
 
 All devices receive same CLBC program, execute deterministically, and publish transcript hashes. Verify all hashes match to prove cross-architecture determinism.
-

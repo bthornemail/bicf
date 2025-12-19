@@ -82,12 +82,13 @@
 
 ## Configuration
 
-Edit `main/main.c`:
+Copy `main/config_local.example.h` to `main/config_local.h` (ignored by git):
 
 ```c
-#define WIFI_SSID "YourNetwork"
-#define WIFI_PASSWORD "YourPassword"
-#define MQTT_BROKER_HOST "192.168.1.100"
+#define WIFI_SSID "YOUR_SSID"
+#define WIFI_PASSWORD "YOUR_PASSWORD"
+// For phone hotspot brokers, "gateway" usually works best.
+#define MQTT_BROKER_HOST "gateway"
 #define MQTT_BROKER_PORT 1883
 #define DEVICE_ID "esp32-a"  // or "esp32-b"
 ```
@@ -111,7 +112,7 @@ idf.py flash
 
 2. **ESP32 A** - Flash with `DEVICE_ID="esp32-a"`
 3. **ESP32 B** - Flash with `DEVICE_ID="esp32-b"`
-4. **Pico W2** - Use USB CDC bridge:
+4. **Pico 2 / Pico 2 W** - Use USB CDC bridge:
    ```bash
    python3 tools/pico-mqtt-bridge.py /dev/ttyACM0 --broker localhost
    ```
@@ -148,4 +149,3 @@ idf.py flash
 - **CLBC VM:** `embedded/esp32-clbc-sha/main/clbc_vm.c`
 - **Pico Bridge:** `tools/pico-mqtt-bridge.py`
 - **Setup Script:** `scripts/setup-3device-test.sh`
-

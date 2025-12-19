@@ -91,11 +91,12 @@ if [ -n "$PICO_PORT" ] && [ -e "$PICO_PORT" ]; then
 fi
 
 if [ -n "$ESP32_PORT" ] && [ "$ESP32_PORT" = "auto" ]; then
-  if ESP32_PORT="$(scripts/find-esp32-vm-port.sh --timeout 2.5 --baud "$ESP32_BAUD" --exclude "${PICO_PORT:-}")"; then
+  # Avoid brittle `set -e` interactions with `if var="$(cmd)"` on some bash versions.
+  ESP32_PORT="$(scripts/find-esp32-vm-port.sh --timeout 2.5 --baud "$ESP32_BAUD" --exclude "${PICO_PORT:-}" 2>/dev/null || true)"
+  if [ -n "$ESP32_PORT" ]; then
     echo "auto-detected esp32 port: $ESP32_PORT"
   else
     echo "warn: ESP32 auto-detect failed; skipping ESP32 benchmark (flash embedded/esp32-clbc-sha first)" >&2
-    ESP32_PORT=""
   fi
 fi
 
@@ -108,11 +109,11 @@ fi
 
 if [ -n "$ESP32_PORT_2" ] && [ "$ESP32_PORT_2" = "auto" ]; then
   EX1="${ESP32_PORT:-}"
-  if ESP32_PORT_2="$(scripts/find-esp32-vm-port.sh --timeout 2.5 --baud "$ESP32_BAUD" --exclude "${PICO_PORT:-}" --exclude "${EX1:-}")"; then
+  ESP32_PORT_2="$(scripts/find-esp32-vm-port.sh --timeout 2.5 --baud "$ESP32_BAUD" --exclude "${PICO_PORT:-}" --exclude "${EX1:-}" 2>/dev/null || true)"
+  if [ -n "$ESP32_PORT_2" ]; then
     echo "auto-detected esp32 #2 port: $ESP32_PORT_2"
   else
     echo "warn: ESP32 #2 auto-detect failed; skipping ESP32 #2 benchmark" >&2
-    ESP32_PORT_2=""
   fi
 fi
 

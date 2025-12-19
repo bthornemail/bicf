@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Setup script for 3-device heterogeneous network test
-# 2×ESP32-S3 + 1×Pico W2 over MQTT
+# 2×ESP32 + 1×Pico (USB bridge) over MQTT
 
 set -euo pipefail
 
@@ -13,8 +13,8 @@ usage: scripts/setup-3device-test.sh [options]
 
 Sets up 3-device heterogeneous network test environment:
 - Mosquitto MQTT broker (Docker container)
-- ESP32-S3 A and B (connect via WiFi to MQTT)
-- Pico W2 (via USB CDC bridge to MQTT)
+- ESP32 A and B (connect via WiFi to MQTT; requires an MQTT-capable firmware)
+- Pico (via USB CDC bridge to MQTT; works for Pico 2 and Pico 2 W)
 
 options:
   --broker-host <host>    MQTT broker host (default: localhost)
@@ -51,7 +51,7 @@ echo "=========================================="
 echo ""
 echo "Configuration:"
 echo "  MQTT Broker: $BROKER_HOST:$BROKER_PORT"
-echo "  Pico W2: $PICO_PORT"
+echo "  Pico (USB CDC): $PICO_PORT"
 echo ""
 
 # Start Mosquitto broker if requested
@@ -89,11 +89,16 @@ fi
 echo ""
 echo "[3/3] ESP32 Configuration"
 echo ""
-echo "For ESP32-S3 A and B, configure WiFi and MQTT client:"
+echo "For ESP32 A and B, configure WiFi and MQTT client:"
 echo "  - WiFi SSID: <your-network>"
 echo "  - WiFi Password: <your-password>"
 echo "  - MQTT Broker: $BROKER_HOST"
 echo "  - MQTT Port: $BROKER_PORT"
+echo ""
+echo "Firmware notes:"
+echo "  - ESP32: use embedded/esp32-mqtt-clbc (MQTT over WiFi)"
+echo "  - Pico 2 W: use embedded/pico2w-mqtt-clbc (MQTT over WiFi, power-only after flashing)"
+echo "  - Pico 2 (non-W): use tools/pico-mqtt-bridge.py over USB CDC"
 echo ""
 echo "ESP32 firmware should:"
 echo "  1. Connect to WiFi"
@@ -104,7 +109,7 @@ echo "  5. Publish to: bicf/esp32-a/events (for ESP32 A)"
 echo "  6. Publish to: bicf/esp32-b/events (for ESP32 B)"
 echo ""
 echo "Test topics:"
-echo "  - bicf/pico/events - Pico W2 events (via bridge)"
+echo "  - bicf/pico/events - Pico events (via bridge)"
 echo "  - bicf/esp32-a/events - ESP32 A events"
 echo "  - bicf/esp32-b/events - ESP32 B events"
 echo "  - bicf/consensus/result - Final consensus result"
@@ -114,4 +119,3 @@ echo "  1. Send same CLBC program to all 3 devices"
 echo "  2. Collect transcript hashes from all devices"
 echo "  3. Verify all hashes match (proves cross-architecture determinism)"
 echo ""
-

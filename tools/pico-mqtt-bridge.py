@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 """
-USB CDC to MQTT Bridge for Pico 2
-Bridges Pico 2's USB CDC communication to MQTT broker
-Allows Pico 2 (no WiFi) to participate in MQTT network
+USB CDC to MQTT Bridge for Pico 2 / Pico 2 W
+Bridges a Pico USB CDC CLBT device to an MQTT broker.
+Useful when you want the Pico to participate via a host bridge (even if the board has WiFi).
 """
 
 import argparse
 import json
 import sys
 import time
+import struct
 from pathlib import Path
 
 try:
@@ -29,15 +30,11 @@ MSG_RUN_RESULT = 0x8003
 
 
 def pack_frame(msg_type: int, payload: bytes) -> bytes:
-    import struct
     hdr = struct.pack("<IHHI", CLBT_MAGIC, CLBT_VERSION, msg_type, len(payload))
     return hdr + payload
 
 
 def read_frame(ser, timeout_s: float):
-    import struct
-    import time
-    
     deadline = time.time() + timeout_s
     hdr = b""
     while len(hdr) < 12 and time.time() < deadline:
@@ -96,20 +93,20 @@ def on_mqtt_message(client, userdata, msg):
         
         if data.get("type") == "load_program":
             # Load CLBC program to Pico
-            clbc_path = data.get("clbc_path")
-            if clbc_path:
+            if "clbc_hex" in data:
+                clbc_bytes = bytes.fromhex(data["clbc_hex"])
+            else:
+                clbc_path = data.get("clbc_path")
+                if not clbc_path:
+                    raise ValueError("load_program requires clbc_hex or clbc_path")
                 clbc_bytes = Path(clbc_path).read_bytes()
-                load_payload = struct.pack("<I", len(clbc_bytes)) + clbc_bytes
-                ser.write(pack_frame(MSG_LOAD_PROGRAM, load_payload))
-                
-                # Wait for ACK
-                msg_type, _ = read_frame(ser, timeout_s=2.0)
-                if msg_type == MSG_ACK:
-                    # Publish success
-                    client.publish("bicf/pico/status", json.dumps({
-                        "status": "loaded",
-                        "clbc_path": clbc_path
-                    }))
+
+            load_payload = struct.pack("<I", len(clbc_bytes)) + clbc_bytes
+            ser.write(pack_frame(MSG_LOAD_PROGRAM, load_payload))
+
+            msg_type, _ = read_frame(ser, timeout_s=2.0)
+            if msg_type == MSG_ACK:
+                client.publish("bicf/pico/events", json.dumps({"type": "loaded", "clbc_len": len(clbc_bytes)}))
         
         elif data.get("type") == "run":
             # Run CLBC program
@@ -121,19 +118,13 @@ def on_mqtt_message(client, userdata, msg):
             if msg_type == MSG_RUN_RESULT:
                 ok, events, hash_val = parse_run_result(payload)
                 # Publish result
-                client.publish("bicf/pico/result", json.dumps({
-                    "ok": ok,
-                    "events": events,
-                    "transcript_hash": hash_val
-                }))
+                client.publish("bicf/pico/events", json.dumps({"type": "run_result", "ok": ok, "events": events, "transcript_hash": hash_val}))
     
     except Exception as e:
         print(f"error handling MQTT message: {e}", file=sys.stderr)
 
 
 def main(argv):
-    import struct
-    
     ap = argparse.ArgumentParser(description="Bridge Pico 2 USB CDC to MQTT broker")
     ap.add_argument("pico_port", help="Pico USB CDC port, e.g. /dev/ttyACM0")
     ap.add_argument("--broker", default="localhost", help="MQTT broker host")
@@ -209,4 +200,3 @@ def main(argv):
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-

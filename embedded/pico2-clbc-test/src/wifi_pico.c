@@ -1,9 +1,8 @@
 #include "wifi_pico.h"
 #include <string.h>
 
-// WiFi implementation for Pico W2
-// NOTE: This requires Pico SDK WiFi support (cyw43 driver)
-// Pico 2 (RP2350) does NOT have WiFi - only Pico W variants do
+// WiFi implementation for WiFi-capable Pico boards (Pico W / Pico 2 W class).
+// NOTE: This file is currently a placeholder; real implementation needs cyw43 + lwIP integration.
 
 static wifi_status_t g_wifi_status = WIFI_DISCONNECTED;
 static uint8_t g_ip_address[4] = {0, 0, 0, 0};
@@ -73,4 +72,3 @@ void wifi_get_ip(uint8_t ip[4]) {
 bool wifi_is_connected(void) {
     return g_wifi_status == WIFI_CONNECTED;
 }
-

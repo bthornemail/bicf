@@ -2,9 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
-// MQTT client implementation for Pico W2
-// NOTE: This requires Pico W (WiFi variant), not Pico 2 (RP2350 without WiFi)
-// For Pico 2, use USB CDC or wait for WiFi module support
+// MQTT client implementation for WiFi-capable Pico boards (Pico W / Pico 2 W class).
+// NOTE: This is currently a placeholder; it does not implement TCP sockets yet.
 
 // MQTT protocol constants
 #define MQTT_CONNECT 0x10
@@ -175,4 +174,3 @@ void mqtt_set_message_callback(mqtt_client_t *client, mqtt_message_callback_t ca
 bool mqtt_is_connected(mqtt_client_t *client) {
     return client && client->connected;
 }
-

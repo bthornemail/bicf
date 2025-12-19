@@ -8,15 +8,28 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
+option(PICO2_CLBC_ENABLE_EXPERIMENTAL_NRR "Build experimental NRR module (not required for CLBT demo)" OFF)
+option(PICO2_CLBC_ENABLE_EXPERIMENTAL_CANVASL "Build experimental CanvasL/JSONL interpreter (placeholders for FANO/PCG)" OFF)
+option(PICO2_CLBC_ENABLE_EXPERIMENTAL_WIFI_MQTT "Build experimental WiFi/MQTT stubs (Pico W / Pico 2 W class only)" OFF)
+
 add_executable(pico2_clbc_test
   src/main.c
   src/clbc_vm.c
   src/sha256.c
   src/usb_descriptors.c
-  src/nrr_pico.c
-  src/canvasl_pico.c
-  src/json_parser_minimal.c
 )
+
+if (PICO2_CLBC_ENABLE_EXPERIMENTAL_NRR)
+  target_sources(pico2_clbc_test PRIVATE src/nrr_pico.c)
+endif()
+
+if (PICO2_CLBC_ENABLE_EXPERIMENTAL_CANVASL)
+  target_sources(pico2_clbc_test PRIVATE src/canvasl_pico.c src/json_parser_minimal.c)
+endif()
+
+if (PICO2_CLBC_ENABLE_EXPERIMENTAL_WIFI_MQTT)
+  target_sources(pico2_clbc_test PRIVATE src/wifi_pico.c src/mqtt_client_pico.c)
+endif()
 
 target_include_directories(pico2_clbc_test PRIVATE src)
 

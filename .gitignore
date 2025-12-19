@@ -8,6 +8,8 @@ _build/
 esp-idf/
 .venv-esptool/
 .deps/
+embedded/pico2w-mqtt-clbc/src/config_local.h
+embedded/esp32-mqtt-clbc/main/config_local.h
 
 # Python
 __pycache__/

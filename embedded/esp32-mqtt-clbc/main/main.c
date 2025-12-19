@@ -14,15 +14,9 @@
 
 #include "clbc_vm.h"
 #include "wifi_mqtt.h"
+#include "config.h"
 
 static const char *TAG = "mqtt_clbc";
-
-// Configuration (would normally come from menuconfig or NVS)
-#define WIFI_SSID "YourNetwork"
-#define WIFI_PASSWORD "YourPassword"
-#define MQTT_BROKER_HOST "192.168.1.100"
-#define MQTT_BROKER_PORT 1883
-#define DEVICE_ID "esp32-a"  // Change to "esp32-b" for second device
 
 static uint8_t g_clbc_program[4096] = {0};
 static size_t g_clbc_program_len = 0;
@@ -174,8 +168,19 @@ void app_main(void) {
         return;
     }
 
-    // Note: MQTT event handler is registered in wifi_mqtt_init()
-    // Additional handlers can be registered here if needed
+    // When MQTT_BROKER_HOST="gateway", the client starts only after STA gets an IP.
+    // Wait for the client handle then register the command handler.
+    esp_mqtt_client_handle_t client = NULL;
+    for (int i = 0; i < 600 && client == NULL; i++) {  // ~60s worst-case
+        client = wifi_mqtt_get_client();
+        if (client) break;
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    if (client) {
+        esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+    } else {
+        ESP_LOGW(TAG, "MQTT client not ready; commands will be ignored until it connects");
+    }
 
     ESP_LOGI(TAG, "Initialization complete. Waiting for commands on: bicf/%s/command", DEVICE_ID);
 
@@ -184,4 +189,3 @@ void app_main(void) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
-

@@ -1,8 +1,8 @@
-# NRR (Native Repository Runtime) for Pico W2
+# NRR (Native Repository Runtime) for Pico 2 / Pico 2 W (experimental)
 
 ## Overview
 
-NRR provides content-addressed storage and append-only log functionality for Pico W2. This is a memory-constrained implementation suitable for embedded systems.
+NRR provides content-addressed storage and append-only log functionality for Pico 2 class boards. This file describes the experimental in-memory implementation under `embedded/pico2-clbc-test/src/nrr_pico.c`.
 
 ## Features
 
@@ -100,4 +100,3 @@ The append-only log enables deterministic replay:
 3. Replay by iterating log entries and retrieving content via `nrr_get()`
 
 This matches the Scheme NRR interface for cross-platform compatibility.
-

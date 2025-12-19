@@ -1,12 +1,14 @@
-# Network Implementation Status for Pico W2
+# Network Implementation Status for Pico 2 / Pico 2 W
 
 ## Hardware Note
 
-**Important:** Pico 2 (RP2350) does **NOT** have built-in WiFi. Only **Pico W** variants have WiFi (CYW43439 chip).
+**Important:** There are two relevant boards:
+- **Pico 2 (RP2350)**: no WiFi
+- **Pico 2 W (RP2350 + CYW43)**: WiFi/Bluetooth available
 
 If you have:
-- **Pico 2 (RP2350)**: No WiFi - use USB CDC only
-- **Pico W 2**: Has WiFi - can use network implementation
+- **Pico 2**: Use USB CDC only (or add an external network module)
+- **Pico 2 W**: You can implement WiFi + TCP/IP + MQTT on-device (not complete yet)
 
 ## Current Status
 
@@ -22,7 +24,7 @@ If you have:
 
 ## Implementation Requirements
 
-### For Pico W 2 (WiFi variant):
+### For Pico 2 W / Pico W (WiFi variants):
 
 1. **Enable WiFi in CMakeLists.txt:**
 ```cmake
@@ -62,7 +64,7 @@ mqtt_publish(&client, "bicf/state", data, len, 1, false);
 
 ## Alternative: USB CDC Bridge ✅ Implemented
 
-If using Pico 2 (no WiFi), use USB CDC as bridge:
+If using Pico 2 (or if you want to avoid implementing MQTT on-device), use USB CDC as bridge:
 
 1. Pico 2 communicates via USB CDC to host
 2. Host runs MQTT client (Python script)
@@ -90,8 +92,7 @@ This allows 3-device testing without requiring WiFi on Pico.
 
 1. ✅ **USB CDC Bridge:** Complete - `tools/pico-mqtt-bridge.py`
 2. ✅ **Setup Script:** Complete - `scripts/setup-3device-test.sh`
-3. ⏳ **If Pico W 2:** Complete WiFi and MQTT implementation (requires Pico SDK WiFi)
+3. ⏳ **If Pico 2 W / Pico W:** Complete WiFi and MQTT implementation (requires Pico SDK WiFi)
 4. ⏳ **ESP32 MQTT Client:** Add MQTT client to ESP32 firmware
 5. ⏳ **Test 3-device setup:** 2×ESP32 + 1×Pico over MQTT broker
 6. ⏳ **Deterministic validation:** Verify same CLBC program produces identical hash on all 3 devices
-

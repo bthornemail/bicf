@@ -14,6 +14,34 @@ static const char *TAG = "wifi_mqtt";
 static esp_mqtt_client_handle_t g_mqtt_client = NULL;
 static bool g_connected = false;
 static char g_device_id[16] = {0};
+static char g_mqtt_uri[128] = {0};
+static char g_broker_host[64] = {0};
+static int g_broker_port = 1883;
+static char g_client_id[32] = {0};
+static bool g_broker_is_gateway = false;
+static bool g_mqtt_started = false;
+
+static void mqtt_event_handler_internal(void *handler_args, esp_event_base_t base,
+                                        int32_t event_id, void *event_data);
+
+static void mqtt_start_with_uri(const char* uri) {
+    if (g_mqtt_started || g_mqtt_client) return;
+    if (!uri || !uri[0]) return;
+
+    esp_mqtt_client_config_t mqtt_cfg = {0};
+    mqtt_cfg.broker.address.uri = uri;
+    mqtt_cfg.credentials.client_id = g_client_id[0] ? g_client_id : NULL;
+
+    g_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    if (!g_mqtt_client) {
+        ESP_LOGE(TAG, "Failed to initialize MQTT client");
+        return;
+    }
+
+    esp_mqtt_client_register_event(g_mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler_internal, NULL);
+    esp_mqtt_client_start(g_mqtt_client);
+    g_mqtt_started = true;
+}
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data) {
@@ -27,6 +55,12 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "WiFi connected, IP: " IPSTR, IP2STR(&event->ip_info.ip));
         g_connected = true;
+
+        if (g_broker_is_gateway && !g_mqtt_started) {
+            snprintf(g_mqtt_uri, sizeof(g_mqtt_uri), "mqtt://" IPSTR ":%d", IP2STR(&event->ip_info.gw), g_broker_port);
+            ESP_LOGI(TAG, "Starting MQTT broker at gateway: %s", g_mqtt_uri);
+            mqtt_start_with_uri(g_mqtt_uri);
+        }
     }
 }
 
@@ -65,6 +99,12 @@ bool wifi_mqtt_init(const wifi_mqtt_config_t *config) {
 
     strncpy(g_device_id, config->device_id, sizeof(g_device_id) - 1);
     g_device_id[sizeof(g_device_id) - 1] = '\0';
+    strncpy(g_broker_host, config->broker_host, sizeof(g_broker_host) - 1);
+    g_broker_host[sizeof(g_broker_host) - 1] = '\0';
+    g_broker_port = config->broker_port;
+    strncpy(g_client_id, config->client_id, sizeof(g_client_id) - 1);
+    g_client_id[sizeof(g_client_id) - 1] = '\0';
+    g_broker_is_gateway = strcmp(g_broker_host, "gateway") == 0;
 
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -97,21 +137,13 @@ bool wifi_mqtt_init(const wifi_mqtt_config_t *config) {
 
     ESP_LOGI(TAG, "WiFi initialization finished, connecting to: %s", config->ssid);
 
-    // Initialize MQTT client
-    esp_mqtt_client_config_t mqtt_cfg = {0};
-    char uri[128];
-    snprintf(uri, sizeof(uri), "mqtt://%s:%d", config->broker_host, config->broker_port);
-    mqtt_cfg.uri = uri;
-    mqtt_cfg.client_id = config->client_id;
-
-    g_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
-    if (!g_mqtt_client) {
-        ESP_LOGE(TAG, "Failed to initialize MQTT client");
-        return false;
+    // Initialize MQTT client:
+    // - If broker_host == "gateway", wait for DHCP gateway in IP_EVENT_STA_GOT_IP.
+    // - Otherwise build a URI immediately.
+    if (!g_broker_is_gateway) {
+        snprintf(g_mqtt_uri, sizeof(g_mqtt_uri), "mqtt://%s:%d", g_broker_host, g_broker_port);
+        mqtt_start_with_uri(g_mqtt_uri);
     }
-
-    esp_mqtt_client_register_event(g_mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler_internal, NULL);
-    esp_mqtt_client_start(g_mqtt_client);
 
     return true;
 }
@@ -150,4 +182,3 @@ bool wifi_mqtt_publish_result(const char *transcript_hash, uint32_t events, bool
 
     return msg_id >= 0;
 }
-

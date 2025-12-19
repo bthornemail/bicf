@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "nrr_pico.h"
 
-// CanvasL interpreter for Pico W2
+// CanvasL interpreter for Pico 2 / Pico 2 W (experimental)
 // Simplified implementation for memory-constrained environments
 
 // Maximum vector/matrix dimensions
@@ -101,4 +101,3 @@ bool canvasl_validate_fano(const canvasl_vector_t *decoded, const char *boundary
 bool canvasl_validate_pcg(const canvasl_vector_t *decoded, const char *boundary_id);
 
 #endif  // CANVASL_PICO_H
-

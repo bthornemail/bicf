@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// MQTT client for Pico W2 (requires WiFi-capable Pico W variant)
+// MQTT client for WiFi-capable Pico boards (Pico W / Pico 2 W class).
 // Minimal MQTT 3.1.1 client for deterministic event ordering
 
 #define MQTT_MAX_TOPIC_LEN 128
@@ -63,4 +63,3 @@ void mqtt_set_message_callback(mqtt_client_t *client, mqtt_message_callback_t ca
 bool mqtt_is_connected(mqtt_client_t *client);
 
 #endif  // MQTT_CLIENT_PICO_H
-

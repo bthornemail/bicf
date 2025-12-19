@@ -1,4 +1,4 @@
-# CanvasL Port Status for Pico W2
+# CanvasL Port Status for Pico 2 / Pico 2 W (experimental)
 
 ## Completed
 
@@ -78,7 +78,7 @@ Current limits (configurable in `canvasl_pico.h`):
 - Max environment entries: 32
 - Max JSONL line: 512 bytes
 
-These can be adjusted based on available RAM (Pico 2 has 264KB SRAM).
+These can be adjusted based on available RAM (Pico 2 class boards have ~520KB SRAM).
 
 ## Integration Path
 
@@ -111,4 +111,3 @@ The CanvasL port can now:
 - ✅ Log operations to NRR
 
 **Limitation**: FANO and PCG validation currently always return true. These need to be ported from the Scheme implementations to be fully functional.
-

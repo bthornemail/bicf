@@ -4,9 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// WiFi interface for Pico W2
-// NOTE: Pico 2 (RP2350) does NOT have WiFi
-// This is for Pico W 2 (WiFi variant with CYW43439 chip)
+// WiFi interface for WiFi-capable Pico boards (Pico W / Pico 2 W class).
+// NOTE: This is currently a placeholder API.
+// This is for WiFi-capable Pico variants (CYW43-based boards like Pico W / Pico 2 W).
 
 #define WIFI_MAX_SSID_LEN 32
 #define WIFI_MAX_PASSWORD_LEN 64
@@ -45,4 +45,3 @@ void wifi_get_ip(uint8_t ip[4]);
 bool wifi_is_connected(void);
 
 #endif  // WIFI_PICO_H
-

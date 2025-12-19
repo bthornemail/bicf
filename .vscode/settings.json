@@ -1,3 +1,4 @@
 {
-  "C_Cpp.intelliSenseEngine": "default"
+  "C_Cpp.intelliSenseEngine": "default",
+  "cmake.sourceDirectory": "/home/main/devops/bicf-production/esp-idf"
 }

@@ -36,8 +36,10 @@ fi
 for p in "${ports[@]}"; do
   [ -e "$p" ] || continue
   skip=0
+  rp="$(readlink -f "$p" 2>/dev/null || echo "$p")"
   for ex in "${EXCLUDES[@]}"; do
-    if [ "$p" = "$ex" ]; then
+    rex="$(readlink -f "$ex" 2>/dev/null || echo "$ex")"
+    if [ "$rp" = "$rex" ]; then
       skip=1
       break
     fi

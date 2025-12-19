@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// NRR (Native Repository Runtime) for Pico W2
+// NRR (Native Repository Runtime) for Pico 2 / Pico 2 W (experimental)
 // Content-addressed storage + append-only log
 
 // Maximum content size (adjust based on available RAM)
@@ -70,4 +70,3 @@ void nrr_log_clear(nrr_context_t *ctx);
 void nrr_hash_to_ref(const uint8_t *hash, char *ref_out);
 
 #endif  // NRR_PICO_H
-
