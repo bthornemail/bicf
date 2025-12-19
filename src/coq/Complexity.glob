@@ -1,0 +1,138 @@
+DIGEST 1ba0afde226379f53bb235d0f26f662b
+FComplexity
+R26:39 Coq.Arith.PeanoNat <> <> lib
+R43:45 Coq.micromega.Lia <> <> lib
+R49:53 Coq.micromega.Psatz <> <> lib
+def 326:331 <> choose
+R340:342 Coq.Init.Datatypes <> nat ind
+binder 334:334 <> n:1
+binder 336:336 <> k:2
+R347:349 Coq.Init.Datatypes <> nat ind
+R365:365 Complexity <> k:2 var
+R362:362 Complexity <> n:1 var
+R393:393 Coq.Init.Datatypes <> S constr
+R406:406 Coq.Init.Datatypes <> S constr
+R412:412 Coq.Init.Datatypes <> S constr
+R432:434 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R420:425 Complexity <> choose:3 def
+R435:440 Complexity <> choose:3 def
+R446:446 Coq.Init.Datatypes <> S constr
+prf 466:475 <> choose_n_0
+binder 486:486 <> n:6
+R499:501 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R489:494 Complexity <> choose def
+R496:496 Complexity <> n:6 var
+prf 558:567 <> choose_0_S
+binder 578:578 <> k:7
+R595:597 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R581:586 Complexity <> choose def
+R591:591 Coq.Init.Datatypes <> S constr
+R593:593 Complexity <> k:7 var
+prf 642:651 <> choose_S_S
+binder 662:662 <> n:8
+binder 664:664 <> k:9
+R685:687 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R667:672 Complexity <> choose def
+R675:675 Coq.Init.Datatypes <> S constr
+R677:677 Complexity <> n:8 var
+R681:681 Coq.Init.Datatypes <> S constr
+R683:683 Complexity <> k:9 var
+R698:700 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R688:693 Complexity <> choose def
+R695:695 Complexity <> n:8 var
+R697:697 Complexity <> k:9 var
+R701:706 Complexity <> choose def
+R708:708 Complexity <> n:8 var
+R711:711 Coq.Init.Datatypes <> S constr
+R713:713 Complexity <> k:9 var
+prf 761:769 <> choose_gt
+binder 780:780 <> n:10
+binder 782:782 <> k:11
+R790:793 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R786:788 Coq.Init.Peano <> ::nat_scope:x_'<'_x not
+R785:785 Complexity <> n:10 var
+R789:789 Complexity <> k:11 var
+R804:806 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R794:799 Complexity <> choose def
+R801:801 Complexity <> n:10 var
+R803:803 Complexity <> k:11 var
+R952:967 Coq.Arith.PeanoNat Nat succ_lt_mono thm
+R952:967 Coq.Arith.PeanoNat Nat succ_lt_mono thm
+R1022:1022 Coq.Init.Datatypes <> S constr
+R1022:1022 Coq.Init.Datatypes <> S constr
+R1022:1022 Coq.Init.Datatypes <> S constr
+R1022:1022 Coq.Init.Datatypes <> S constr
+prf 1052:1061 <> choose_n_1
+binder 1072:1072 <> n:12
+R1085:1087 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1075:1080 Complexity <> choose def
+R1082:1082 Complexity <> n:12 var
+R1088:1088 Complexity <> n:12 var
+R1160:1169 Complexity <> choose_n_0 thm
+R1160:1169 Complexity <> choose_n_0 thm
+R1160:1169 Complexity <> choose_n_0 thm
+def 1196:1210 <> sum_choose_upto
+R1219:1221 Coq.Init.Datatypes <> nat ind
+binder 1213:1213 <> n:13
+binder 1215:1215 <> m:14
+R1226:1228 Coq.Init.Datatypes <> nat ind
+R1241:1241 Complexity <> m:14 var
+R1257:1262 Complexity <> choose def
+R1264:1264 Complexity <> n:13 var
+R1272:1272 Coq.Init.Datatypes <> S constr
+R1300:1302 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R1280:1294 Complexity <> sum_choose_upto:15 def
+R1296:1296 Complexity <> n:13 var
+R1303:1308 Complexity <> choose def
+R1310:1310 Complexity <> n:13 var
+R1313:1313 Coq.Init.Datatypes <> S constr
+def 1336:1355 <> sum_choose_succ_upto
+R1364:1366 Coq.Init.Datatypes <> nat ind
+binder 1358:1358 <> n:17
+binder 1360:1360 <> m:18
+R1371:1373 Coq.Init.Datatypes <> nat ind
+R1386:1386 Complexity <> m:18 var
+R1402:1407 Complexity <> choose def
+R1409:1409 Complexity <> n:17 var
+R1417:1417 Coq.Init.Datatypes <> S constr
+R1450:1452 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R1425:1444 Complexity <> sum_choose_succ_upto:19 def
+R1446:1446 Complexity <> n:17 var
+R1453:1458 Complexity <> choose def
+R1460:1460 Complexity <> n:17 var
+R1463:1463 Coq.Init.Datatypes <> S constr
+R1466:1466 Coq.Init.Datatypes <> S constr
+def 1492:1505 <> sum_choose_all
+R1512:1514 Coq.Init.Datatypes <> nat ind
+binder 1508:1508 <> n:21
+R1519:1521 Coq.Init.Datatypes <> nat ind
+R1526:1540 Complexity <> sum_choose_upto def
+R1542:1542 Complexity <> n:21 var
+R1544:1544 Complexity <> n:21 var
+prf 1554:1573 <> sum_choose_upto_succ
+binder 1586:1586 <> n:22
+binder 1588:1588 <> m:23
+R1614:1616 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1591:1605 Complexity <> sum_choose_upto def
+R1607:1607 Complexity <> n:22 var
+R1610:1610 Coq.Init.Datatypes <> S constr
+R1612:1612 Complexity <> m:23 var
+R1627:1629 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R1617:1622 Complexity <> choose def
+R1624:1624 Complexity <> n:22 var
+R1630:1649 Complexity <> sum_choose_succ_upto def
+R1651:1651 Complexity <> n:22 var
+R1653:1653 Complexity <> m:23 var
+R1722:1731 Complexity <> choose_n_0 thm
+R1722:1731 Complexity <> choose_n_0 thm
+R1722:1731 Complexity <> choose_n_0 thm
+R1750:1764 Complexity <> sum_choose_upto def
+R1769:1769 Coq.Init.Datatypes <> S constr
+R1772:1772 Coq.Init.Datatypes <> S constr
+R1750:1764 Complexity <> sum_choose_upto def
+R1769:1769 Coq.Init.Datatypes <> S constr
+R1772:1772 Coq.Init.Datatypes <> S constr
+R1791:1810 Complexity <> sum_choose_succ_upto def
+R1815:1815 Coq.Init.Datatypes <> S constr
+R1791:1810 Complexity <> sum_choose_succ_upto def
+R1815:1815 Coq.Init.Datatypes <> S constr
