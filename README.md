@@ -100,6 +100,7 @@ This repository contains a **BICF (Boundary–Interior Combinatorial Framework) 
 
 ### Deployment (`deployment/`)
 - **Docker Compose** orchestration for production
+- **Docker Compose development environment** (`docker-compose.dev.yml`) - Coq+Dune compilation, Lean 4 verification, E2E testing, and demo modeling
 - **Multi-environment support** (production, staging, development)
 - **Service mesh** with API gateway and load balancing
 - **Monitoring and logging** with Prometheus and ELK stack
@@ -177,6 +178,8 @@ guile -s src/index.scm help
 ```
 
 ### Docker Usage
+
+#### Production Image
 ```bash
 # Build Docker image
 docker build -t bicf/production:latest .
@@ -184,6 +187,40 @@ docker build -t bicf/production:latest .
 # Run container
 docker run bicf/production:latest help
 ```
+
+#### Development Environment (Docker Compose)
+
+The repository includes a complete Docker Compose development environment (`docker-compose.dev.yml`) with services for formal verification, testing, and demos.
+
+**Quick Start:**
+```bash
+# Run formal verification (Coq + Lean)
+./scripts/docker-dev.sh verify
+
+# Run E2E tests
+./scripts/docker-dev.sh test
+
+# Run demo in replay mode
+./scripts/docker-dev.sh demo-replay
+# Then open http://localhost:8080
+
+# Run demo with live ESP32 devices
+PORT_A=/dev/ttyUSB0 PORT_B=/dev/ttyUSB1 PORT_C=/dev/ttyUSB2 ./scripts/docker-dev.sh demo-live
+
+# Record asciinema demo
+PORT_A=/dev/ttyUSB0 PORT_B=/dev/ttyUSB1 PORT_C=/dev/ttyUSB2 ./scripts/docker-dev.sh record
+```
+
+**Services:**
+- `coq-dune-builder`: Compiles Coq proofs with Dune (Coq 8.18)
+- `lean-verifier`: Verifies Lean 4 proofs with Mathlib (v4.26.0)
+- `formal-verification`: Orchestrates both verification systems
+- `e2e-tester`: Runs full test suite
+- `demo-bridge`: Three.js visualizer bridge (WebSocket server)
+- `demo-viewer`: Three.js web interface (nginx)
+- `asciinema-recorder`: Records ESP32 negotiation demos
+
+See [`docker-compose.dev.README.md`](docker-compose.dev.README.md) for full documentation.
 
 ### Assembly Generation (Available)
 ```bash

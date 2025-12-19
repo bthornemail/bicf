@@ -7,6 +7,7 @@ dev-docs
 _build/
 esp-idf/
 .venv-esptool/
+.deps/
 
 # Python
 __pycache__/

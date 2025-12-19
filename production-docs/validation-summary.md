@@ -26,6 +26,7 @@
 | Test Runner | ✅ Valid | `scripts/test.sh` is executable and runs multiple checks (including CLBC + viz) |
 | Package Configuration | ✅ Valid | Node/JS tooling exists (LSP server) |
 | Coq Formal Verification | ⚠️ Environment-dependent | Proof file present; compilation depends on Coq+Dune availability and configuration |
+| Docker Infrastructure | ✅ Provided | `docker-compose.dev.yml` with 7 services: Coq+Dune builder, Lean verifier, formal verification orchestrator, E2E tester, demo bridge/viewer, asciinema recorder |
 
 ---
 
@@ -41,7 +42,6 @@
 
 | Component | Status | Issue |
 |-----------|--------|-------|
-| Docker Infrastructure | ❌ Not provided | Docker files are not part of the current repo deliverables (docs may exist elsewhere) |
 | Production Deployment | ❌ Not provided | Deployment automation is not included as a first-class artifact in this repo |
 
 ---
@@ -151,6 +151,20 @@ known_knowns:
       evidence: "Requires specific Coq+Dune setup"
       confidence: "documented"
 
+  deployment_infrastructure:
+    - claim: "Docker Compose development environment provided"
+      evidence: "docker-compose.dev.yml with 7 services"
+      confidence: "absolute"
+      files: ["docker-compose.dev.yml", "docker-compose.dev.README.md", "scripts/docker-dev.sh"]
+      services:
+        - "coq-dune-builder: Coq 8.18 + Dune compilation"
+        - "lean-verifier: Lean 4 v4.26.0 + Mathlib verification"
+        - "formal-verification: Orchestrates Coq + Lean verification"
+        - "e2e-tester: Full test suite runner"
+        - "demo-bridge: Three.js visualizer bridge (WebSocket)"
+        - "demo-viewer: Three.js web interface (nginx)"
+        - "asciinema-recorder: ESP32 demo recording"
+
 # Known Unknowns (acknowledged gaps)
 known_unknowns:
   testing_coverage:
@@ -167,10 +181,6 @@ known_unknowns:
       mitigation: "Complexity analysis documented (O(n²), O(n³))"
 
   production_readiness:
-    - gap: "Docker infrastructure not in repo"
-      impact: "Manual deployment required"
-      mitigation: "Docker configs documented in usage guide"
-
     - gap: "CI pipeline uses || true"
       impact: "Test failures don't block builds"
       mitigation: "Tests can be run manually via scripts/test.sh"
@@ -321,7 +331,6 @@ meta:
     immediate:
       - "Harden CI pipeline (remove || true)"
       - "Expand unit test coverage beyond stubs"
-      - "Add Docker infrastructure to repo"
 
     short_term:
       - "Implement fuzz testing for CLBC VM"
