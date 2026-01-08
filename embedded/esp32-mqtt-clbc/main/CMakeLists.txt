@@ -3,8 +3,13 @@ idf_component_register(
         "main.c"
         "wifi_mqtt.c"
         "clbc_vm.c"
+        "udp_discovery.c"
+        "../../canisa-mvp/canisa_mvp.c"
+        "../../canisa-mvp/canisa_poly_f2.c"
+        "../../canisa-mvp/sha256.c"
     INCLUDE_DIRS
         "."
+        "../../canisa-mvp"
     REQUIRES
         nvs_flash
         esp_wifi
@@ -14,4 +19,3 @@ idf_component_register(
         mbedtls
         json
 )
-

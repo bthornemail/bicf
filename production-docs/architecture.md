@@ -611,6 +611,76 @@ Demo index: `demos/README.md`
 
 ---
 
+## Related Systems and Research Extensions
+
+The BICF Production System coexists with two related systems in this repository, each serving distinct purposes while sharing foundational principles.
+
+### CAN-ISA MVP
+
+**Location**: `embedded/canisa-mvp/`, documented in `docs/canisa-mvp.md`
+
+**Purpose**: Minimal polynomial VM for embedded devices
+
+**Architecture**:
+- Univariate F₂[x] polynomial state representation
+- Deterministic canonical state hashing (SHA-256)
+- 16 minimal opcodes: STATE_ADD, STATE_GCD, STATE_LCM, STATE_NORM, STATE_HASH, etc.
+- .canbc container format (CANBC magic, version, payload)
+
+**Hardware**: ESP32/Pico 2W with MQTT coordination (same targets as BICF)
+
+**Status**: Proof-of-concept, field testing ready
+
+**Relationship to BICF**:
+- Uses `src/aal/polynomials.scm` for polynomial operations
+- Shares embedded hardware infrastructure
+- Complements BICF's production CanvasL execution
+- Clean artifact separation (.clbc vs .canbc)
+
+---
+
+### Tetragrammatron-OS
+
+**Location**: `apps/tetragrammatron-os/`
+
+**Purpose**: Formal, RFC-driven geometry-first operating system and VM
+
+**Architecture**:
+- 6 normative RFCs defining complete system semantics
+- 8-tuple semantic registers (state, symbol, left, right, transition, source, target, result)
+- Origami fold semantics with idempotent operations
+- 32-bit fixed-width CANB v1 bytecode encoding
+- Repository lattice (8³ topology) with Fano merge gate
+- Lean formal verification (20 invariants)
+
+**Hardware**: ESP32 UART bridge (extensible to Pico 2W, Android Termux)
+
+**Status**: Research-grade, actively evolving, RFC-driven development
+
+**Relationship to BICF**:
+- Shares Fano plane (PG(2,2)) geometric foundations
+- Builds on polynomial algebra principles
+- Explores proof-carrying bytecode and geometric computation
+- Formal evolution of CAN-ISA concepts
+- Parallel research track complementing BICF production work
+
+---
+
+### System Comparison Summary
+
+| System | Artifact | VM Core | Maturity | Use Case |
+|--------|----------|---------|----------|----------|
+| **BICF** | .clbc | Record-stream | Production | CanvasL execution, NRR storage |
+| **CAN-ISA MVP** | .canbc | Polynomial F₂[x] | Proof-of-concept | Minimal embedded VM |
+| **Tetragrammatron-OS** | .canb | 8-tuple registers | Research | Proof-carrying computation |
+
+For detailed comparison and selection guidance, see:
+- [Tetragrammatron-OS and BICF Relationship](../docs/tetragrammatron-bicf-relationship.md)
+- [CAN-ISA Evolution](../docs/can-isa-evolution.md)
+- [System Selection Guide](../docs/system-selection-guide.md)
+
+---
+
 ## References
 
 - RFC-0001: Boundary–Interior Combinatorial Framework

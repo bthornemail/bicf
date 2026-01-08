@@ -163,6 +163,52 @@
          (hex (hash-sha256 bytes)))
     (string-append "sha256:" hex)))
 
+(define fano-lines
+  ;; Fixed Fano plane incidence (7 lines of 3 points).
+  '((0 1 2)
+    (0 3 4)
+    (0 5 6)
+    (1 3 5)
+    (1 4 6)
+    (2 3 6)
+    (2 4 5)))
+
+(define (poly-coeff poly deg)
+  (let* ((t (trim poly)))
+    (if (and (integer? deg) (<= 0 deg) (< deg (length t)))
+        (list-ref t deg)
+        #f)))
+
+(define (poly->fano-pointmask poly)
+  ;; Points 0..6 correspond to coefficients c0..c6.
+  (let loop ((i 0) (mask 0))
+    (if (>= i 7)
+        mask
+        (loop (+ i 1)
+              (if (poly-coeff poly i)
+                  (logior mask (ash 1 i))
+                  mask)))))
+
+(define (fano-linemask pointmask)
+  (let loop ((ls fano-lines) (i 0) (mask 0))
+    (if (null? ls)
+        mask
+        (let* ((tri (car ls))
+               (a (car tri))
+               (b (cadr tri))
+               (c (caddr tri))
+               (active (and (not (= 0 (logand pointmask (ash 1 a))))
+                            (not (= 0 (logand pointmask (ash 1 b))))
+                            (not (= 0 (logand pointmask (ash 1 c)))))))
+          (loop (cdr ls) (+ i 1)
+                (if active
+                    (logior mask (ash 1 i))
+                    mask))))))
+
+(define (hash-fano-sha256 pointmask linemask)
+  ;; Canonical projection bytes: [pointmask, linemask] (both u8).
+  (string-append "sha256:" (hash-sha256 (list (logand pointmask #xff) (logand linemask #xff)))))
+
 ;; -----------------------------
 ;; VM execution (subset)
 ;; -----------------------------
@@ -173,10 +219,11 @@
          (events 0)
          (ok? #t)
          (errors '())
-         (mode #f)   ;; arithmetic mode
-         (state0 '()) ;; current state poly
-         (heap (make-heap)) ;; both term and state handles stored as polynomials
-         (outputs (make-heap))) ;; out-handle -> value (string)
+	         (mode #f)   ;; arithmetic mode
+	         (state0 '()) ;; current state poly
+	         (heap (make-heap)) ;; both term and state handles stored as polynomials
+	         (outputs (make-heap)) ;; out-handle -> value (string)
+	         (fano-hash #f))
 
     (define (trap msg)
       (set! ok? #f)
@@ -355,6 +402,19 @@
                   (set! outputs (heap-put outputs out-h (hash-poly-sha256 state0))))
               #f)))
 
+       ((= op #x93) ;; PROJ_FANO u16 out
+        (let* ((ro (read-u16le payload idx))
+               (out-h (car ro)))
+          (set! idx (cdr ro))
+          (if (need out-h "PROJ_FANO: truncated")
+              (let* ((pm (poly->fano-pointmask state0))
+                     (lm (fano-linemask pm))
+                     (h (hash-fano-sha256 pm lm)))
+                (set! fano-hash h)
+                (set! outputs (heap-put outputs out-h h))
+                #t)
+              #f)))
+
        (else
         (trap (string-append "unknown opcode: " (number->string op)))
         'halt)))
@@ -382,5 +442,5 @@
       `((ok? . ,ok?)
         (events . ,events)
         (state_hash . ,hash)
+        (fano_hash . ,fano-hash)
         (errors . ,(reverse errors))))))
-

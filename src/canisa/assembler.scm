@@ -80,7 +80,11 @@
     (STATE_GCD . #x52)
     (STATE_LCM . #x53)
     (STATE_SERIALIZE . #x60)
-    (STATE_HASH . #x61)))
+    (STATE_HASH . #x61)
+
+    ;; 0x90–0x9F: optional/extension opcodes used for visualization/projection
+    ;; (aligned with CAN-ISA v1.0 "Geometry / Visualization Trace" range).
+    (PROJ_FANO . #x93)))
 
 (define (lookup-opcode sym)
   (let ((p (assoc sym *canisa-opcodes*)))
@@ -154,6 +158,9 @@
           (append (emit-op 'STATE_HASH)
                   (list (u8 (car args)))
                   (u16le (cadr args))))
+         ((eq? op 'PROJ_FANO)
+          (append (emit-op 'PROJ_FANO)
+                  (u16le (car args))))
          (else
           (error "canisa: unsupported instruction in MVP assembler" instr))))))
 

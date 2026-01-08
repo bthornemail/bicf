@@ -36,6 +36,6 @@
   (STATE_GCD 101)
   (STATE_NORM 1)
   (STATE_HASH 1 1)         ;; SHA-256 into out=1
+  (PROJ_FANO 2)            ;; Fano projection hash into out=2
   (HALT)
 )
-

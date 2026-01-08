@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BICF CANBC Mesh Visualizer</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <div class="row">
+        <div class="pill">CANBC</div>
+        <div class="pill" id="status">connecting…</div>
+        <a class="pill" href="/events.jsonl" target="_blank" rel="noreferrer">events.jsonl</a>
+      </div>
+      <div id="devices"></div>
+      <div id="log"></div>
+    </div>
+    <canvas id="c"></canvas>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
+

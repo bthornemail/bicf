@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 PORT="${PORT:-}"
 BAUD="${BAUD:-115200}"
-DEVICE_ID="${DEVICE_ID:-esp32-a}"
+DEVICE_ID="${DEVICE_ID:-auto}"
 
 # Allow passing env-style KEY=VALUE args (common copy/paste mistake).
 for arg in "$@"; do
@@ -24,12 +24,14 @@ done
 if [ -z "$PORT" ]; then
   cat >&2 <<'EOF'
 usage:
-  PORT=/dev/ttyUSB0 DEVICE_ID=esp32-a WIFI_SSID='...' WIFI_PASSWORD='...' ./scripts/flash-esp32-mqtt-clbc.sh
+  PORT=/dev/ttyUSB0 WIFI_SSID='...' WIFI_PASSWORD='...' ./scripts/flash-esp32-mqtt-clbc.sh
 
 also accepted (KEY=VALUE args):
-  ./scripts/flash-esp32-mqtt-clbc.sh PORT=/dev/ttyUSB0 DEVICE_ID=esp32-a WIFI_SSID='...' WIFI_PASSWORD='...'
+  ./scripts/flash-esp32-mqtt-clbc.sh PORT=/dev/ttyUSB0 WIFI_SSID='...' WIFI_PASSWORD='...'
 
 optional:
+  DEVICE_ID=auto         # (default) stable MAC-derived ID for zero-config demos
+  DEVICE_ID=esp32-a      # friendly fixed ID (requires per-device flash/config)
   MQTT_BROKER_HOST=gateway   # or an IP/hostname
   MQTT_BROKER_PORT=1883
   BAUD=115200

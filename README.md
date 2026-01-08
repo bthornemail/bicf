@@ -136,6 +136,22 @@ This repository contains a **BICF (Boundary–Interior Combinatorial Framework) 
 - **Comprehensive Testing** - Enhanced test coverage and property-based tests
 - **Embedded System Support** - Full ESP32 implementation of NRR embedded backend
 
+## 🔗 **Related Systems**
+
+This repository includes multiple computation systems with shared foundations:
+
+- **BICF Production System** (`src/`, `production-docs/`) - Production-ready boundary-interior framework with CanvasL JSONL execution, NRR storage, and comprehensive documentation
+- **CAN-ISA MVP** (`embedded/canisa-mvp/`, `docs/canisa-mvp.md`) - Minimal polynomial VM for embedded devices with deterministic canonical state hashing
+- **Tetragrammatron-OS** (`apps/tetragrammatron-os/`) - Formal, RFC-driven geometry-first operating system and VM with proof-carrying bytecode
+
+All three systems share:
+- Fano plane (PG(2,2)) geometric foundations
+- Deterministic execution principles
+- Embedded hardware targets (ESP32, Pico 2W)
+- Formal verification (Lean, Coq)
+
+See [Tetragrammatron-OS and BICF Relationship](docs/tetragrammatron-bicf-relationship.md) for detailed comparison and guidance on choosing the right system.
+
 ## 🎯 **Usage Examples**
 
 ## 🎬 Demos

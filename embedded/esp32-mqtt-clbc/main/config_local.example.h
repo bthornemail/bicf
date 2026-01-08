@@ -14,5 +14,6 @@
 #define MQTT_BROKER_HOST "gateway"
 #define MQTT_BROKER_PORT 1883
 
-// Flash one device as esp32-a and the other as esp32-b.
-#define DEVICE_ID "esp32-a"
+// For zero-config demos, keep "auto" so each device derives a stable ID from its MAC.
+// Or set a friendly fixed ID like "esp32-a".
+#define DEVICE_ID "auto"

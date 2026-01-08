@@ -1,12 +1,13 @@
 # ESP32 MQTT CLBC Firmware
 
-ESP32 firmware that connects to WiFi, subscribes to MQTT commands, and runs CLBC programs deterministically.
+ESP32 firmware that connects to WiFi, subscribes to MQTT commands, and runs CLBC and CANBC programs deterministically.
 
 ## Features
 
 - WiFi station mode connection
 - MQTT client (ESP-IDF mqtt component)
 - CLBC VM execution (deterministic)
+- CAN-ISA MVP execution (`.canbc`) (deterministic)
 - Publishes results to MQTT topics
 - Supports remote command execution
 
@@ -20,7 +21,8 @@ Copy `main/config_local.example.h` to `main/config_local.h` and configure:
 // For phone hotspot brokers, "gateway" usually works best.
 #define MQTT_BROKER_HOST "gateway"
 #define MQTT_BROKER_PORT 1883
-#define DEVICE_ID "esp32-a"  // set to "esp32-b" for the second device
+// "auto" derives a stable ID from the device MAC (recommended for zero-config demos).
+#define DEVICE_ID "auto"
 ```
 
 ## MQTT Topics
@@ -31,6 +33,7 @@ Copy `main/config_local.example.h` to `main/config_local.h` and configure:
 ### Published
 - `bicf/{device_id}/status` - Status updates (program loaded, etc.)
 - `bicf/{device_id}/events` - CLBC execution results
+- `bicf/announce/{device_id}` - Retained announce payload for zero-config discovery
 
 ## Commands
 
@@ -42,12 +45,29 @@ Copy `main/config_local.example.h` to `main/config_local.h` and configure:
 }
 ```
 
+### Load CANBC
+```json
+{
+  "type": "load_canbc",
+  "canbc_hex": "43414e4243..."
+}
+```
+
 ### Run Program
 ```json
 {
   "type": "run"
 }
 ```
+
+## Result Fields
+
+`bicf/{device_id}/events` includes:
+- `transcript_hash`: CLBC transcript hash OR CANBC state hash (for backward compatibility)
+- `events`: event count
+- `ok`: boolean
+- `exec_ms`: device-side execution time in milliseconds (best-effort)
+- `fano_hash`: present when CANBC `PROJ_FANO` was executed (or computed by the firmware)
 
 ## Build
 
@@ -64,6 +84,22 @@ idf.py flash
 3. Device connects to WiFi and MQTT broker
 4. Send commands via MQTT to `bicf/{device_id}/command`
 5. Results published to `bicf/{device_id}/events`
+
+### Zero-config discovery
+
+When `DEVICE_ID` is `"auto"`, each ESP32 publishes a **retained** announce message to:
+- `bicf/announce/{device_id}`
+
+Host tools can subscribe to `bicf/announce/#` and auto-discover devices without fixed IPs or hardcoded IDs.
+
+### UDP discovery (optional)
+
+The firmware also sends UDP multicast discovery beacons and responds to UDP queries:
+- Multicast group: `239.255.42.42:4242`
+- Query payload: `BICF_DISCOVERY_QUERY`
+- Hello payload: `BICF_DISCOVERY_HELLO <device_id>`
+
+This helps a laptop discover device IDs even if you don’t want to rely on MQTT announce.
 
 ## 3-Device Test Setup
 

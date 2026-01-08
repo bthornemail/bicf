@@ -11,7 +11,7 @@ typedef struct {
     char broker_host[64];
     uint16_t broker_port;
     char client_id[32];
-    char device_id[16];  // "esp32-a" or "esp32-b"
+    char device_id[32];  // "esp32-<mac>" or friendly alias
 } wifi_mqtt_config_t;
 
 // Initialize WiFi and MQTT
@@ -24,7 +24,9 @@ esp_mqtt_client_handle_t wifi_mqtt_get_client(void);
 bool wifi_mqtt_is_connected(void);
 
 // Publish CLBC result
-bool wifi_mqtt_publish_result(const char *transcript_hash, uint32_t events, bool ok);
+bool wifi_mqtt_publish_result(const char *transcript_hash, const char *fano_hash, uint32_t events, bool ok, uint32_t exec_ms);
+
+// Returns the active device_id used for topics (may be auto-derived).
+const char *wifi_mqtt_device_id(void);
 
 #endif  // WIFI_MQTT_H
-

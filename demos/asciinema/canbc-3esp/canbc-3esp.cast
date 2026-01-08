@@ -1,0 +1,8 @@
+{"version": 2, "width": 110, "height": 28, "timestamp": 1766139293, "idle_time_limit": 1.0, "env": {"TERM": "xterm-256color", "BROKER": "127.0.0.1", "PORT": "1883", "DISCOVERY": "mqtt"}, "title": "BICF CANBC: 3×ESP32 deterministic parity (MQTT + discovery)"}
+[0.030407, "o", "\r\n\u001b[1;36m== Assemble CANBC ==\u001b[0m\r\n"]
+[0.031558, "o", "input : tests/canisa/canisa-mini.input.scm\r\nout   : /tmp/bicf-demo.canbc\r\n"]
+[0.073163, "o", "-rw-rw-r-- 1 main main 100 Dec 19 02:14 /tmp/bicf-demo.canbc\r\n"]
+[0.073563, "o", "\r\n"]
+[0.073652, "o", "\u001b[1;36m== Run 3×ESP32 via MQTT (127.0.0.1:1883) ==\u001b[0m\r\n"]
+[0.073732, "o", "discovery: MQTT retained announce (bicf/announce/#)\r\n"]
+[10.265979, "o", "missing load ack from: esp32-4cc382bfc350, esp32-841fe81f9860, esp32-841fe8398584\r\n"]

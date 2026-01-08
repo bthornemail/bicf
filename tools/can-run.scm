@@ -27,6 +27,10 @@
         (display "ok?: ") (display (cdr (assq 'ok? res))) (newline)
         (display "events: ") (display (cdr (assq 'events res))) (newline)
         (display "state-hash: ") (display (cdr (assq 'state_hash res))) (newline)
+        (let ((fh (cdr (assq 'fano_hash res))))
+          (if fh
+              (begin
+                (display "fano-hash: ") (display fh) (newline))))
         (let ((errs (cdr (assq 'errors res))))
           (if (and errs (not (null? errs)))
               (begin

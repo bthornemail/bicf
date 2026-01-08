@@ -15,6 +15,7 @@
 
 #define MQTT_COMMAND_TOPIC "bicf/pico/command"
 #define MQTT_EVENTS_TOPIC "bicf/pico/events"
+#define MQTT_STATUS_TOPIC "bicf/pico/status"
 
 #define MQTT_CLIENT_ID "pico"
 

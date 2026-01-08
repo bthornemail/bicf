@@ -19,6 +19,25 @@ This guide provides step-by-step instructions for using the BICF Production Syst
 
 ---
 
+## Choosing the Right System
+
+This repository includes three computation systems with different purposes and maturity levels:
+
+| System | Status | Use When | Documentation |
+|--------|--------|----------|---------------|
+| **BICF Production** | Production-ready | CanvasL JSONL execution, NRR storage, distributed computation, API integration | This guide |
+| **CAN-ISA MVP** | Proof-of-concept | Minimal embedded VM, polynomial computation, field testing, quick ESP32/Pico deployment | [docs/canisa-mvp.md](../docs/canisa-mvp.md) |
+| **Tetragrammatron-OS** | Research-grade | Formal research, proof-carrying bytecode, geometric computation, RFC compliance | [apps/tetragrammatron-os/README.md](../apps/tetragrammatron-os/README.md) |
+
+**This guide focuses on the BICF Production System.**
+
+For help choosing between systems, see:
+- [System Selection Guide](../docs/system-selection-guide.md) - Detailed decision matrix and use cases
+- [Tetragrammatron-OS and BICF Relationship](../docs/tetragrammatron-bicf-relationship.md) - High-level overview
+- [CAN-ISA Evolution](../docs/can-isa-evolution.md) - Technical evolution narrative
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -697,6 +716,10 @@ docker run my-bicf:latest help
 - RFC-0001: Boundary–Interior Combinatorial Framework
 - RFC-0002: FANO Boundary Module (PG(2,2))
 - RFC-0003: CanvasL-POLY: A Deterministic Boundary–Interior Computation Standard
+
+
+
+
 
 
 

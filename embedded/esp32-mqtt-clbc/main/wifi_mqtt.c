@@ -5,6 +5,9 @@
 #include "esp_wifi.h"
 #include "esp_netif.h"
 #include "esp_event.h"
+#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "nvs_flash.h"
 #include "mqtt_client.h"
 #include "cJSON.h"
@@ -13,13 +16,54 @@ static const char *TAG = "wifi_mqtt";
 
 static esp_mqtt_client_handle_t g_mqtt_client = NULL;
 static bool g_connected = false;
-static char g_device_id[16] = {0};
+static char g_device_id[32] = {0};
 static char g_mqtt_uri[128] = {0};
 static char g_broker_host[64] = {0};
 static int g_broker_port = 1883;
 static char g_client_id[32] = {0};
 static bool g_broker_is_gateway = false;
 static bool g_mqtt_started = false;
+static char g_ip_str[16] = {0};
+static char g_gw_str[16] = {0};
+static bool g_announce_task_started = false;
+
+static void publish_announce(void) {
+    if (!g_mqtt_client || !wifi_mqtt_is_connected() || !g_device_id[0]) {
+        return;
+    }
+
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "id", g_device_id);
+    cJSON_AddStringToObject(json, "kind", "esp32");
+    cJSON_AddStringToObject(json, "fw", "esp32-mqtt-clbc");
+    cJSON *caps = cJSON_CreateArray();
+    cJSON_AddItemToArray(caps, cJSON_CreateString("clbc"));
+    cJSON_AddItemToArray(caps, cJSON_CreateString("canbc"));
+    cJSON_AddItemToObject(json, "caps", caps);
+    if (g_ip_str[0]) cJSON_AddStringToObject(json, "ip", g_ip_str);
+    if (g_gw_str[0]) cJSON_AddStringToObject(json, "gw", g_gw_str);
+
+    char *payload = cJSON_PrintUnformatted(json);
+    if (payload) {
+        char topic[96];
+        snprintf(topic, sizeof(topic), "bicf/announce/%s", g_device_id);
+        esp_mqtt_client_publish(g_mqtt_client, topic, payload, 0, 1, 1);
+        free(payload);
+    }
+    cJSON_Delete(json);
+}
+
+static void announce_task(void *arg) {
+    (void)arg;
+    // Periodic retained announce so hosts can discover devices even if they start later,
+    // and even if the broker lost retained state (no persistence).
+    for (;;) {
+        if (wifi_mqtt_is_connected()) {
+            publish_announce();
+        }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+}
 
 static void mqtt_event_handler_internal(void *handler_args, esp_event_base_t base,
                                         int32_t event_id, void *event_data);
@@ -56,6 +100,9 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "WiFi connected, IP: " IPSTR, IP2STR(&event->ip_info.ip));
         g_connected = true;
 
+        snprintf(g_ip_str, sizeof(g_ip_str), IPSTR, IP2STR(&event->ip_info.ip));
+        snprintf(g_gw_str, sizeof(g_gw_str), IPSTR, IP2STR(&event->ip_info.gw));
+
         if (g_broker_is_gateway && !g_mqtt_started) {
             snprintf(g_mqtt_uri, sizeof(g_mqtt_uri), "mqtt://" IPSTR ":%d", IP2STR(&event->ip_info.gw), g_broker_port);
             ESP_LOGI(TAG, "Starting MQTT broker at gateway: %s", g_mqtt_uri);
@@ -79,6 +126,11 @@ static void mqtt_event_handler_internal(void *handler_args, esp_event_base_t bas
             snprintf(topic, sizeof(topic), "bicf/%s/command", g_device_id);
             esp_mqtt_client_subscribe(client, topic, 1);
             ESP_LOGI(TAG, "Subscribed to: %s", topic);
+            publish_announce();
+            if (!g_announce_task_started) {
+                g_announce_task_started = true;
+                (void)xTaskCreate(announce_task, "bicf_announce", 4096, NULL, 4, NULL);
+            }
         }
         g_connected = true;
         break;
@@ -156,7 +208,7 @@ bool wifi_mqtt_is_connected(void) {
     return g_connected && g_mqtt_client != NULL;
 }
 
-bool wifi_mqtt_publish_result(const char *transcript_hash, uint32_t events, bool ok) {
+bool wifi_mqtt_publish_result(const char *transcript_hash, const char *fano_hash, uint32_t events, bool ok, uint32_t exec_ms) {
     if (!g_mqtt_client || !wifi_mqtt_is_connected()) {
         return false;
     }
@@ -164,8 +216,14 @@ bool wifi_mqtt_publish_result(const char *transcript_hash, uint32_t events, bool
     cJSON *json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "device", g_device_id);
     cJSON_AddStringToObject(json, "transcript_hash", transcript_hash);
+    if (fano_hash && fano_hash[0]) {
+        cJSON_AddStringToObject(json, "fano_hash", fano_hash);
+    }
     cJSON_AddNumberToObject(json, "events", events);
     cJSON_AddBoolToObject(json, "ok", ok);
+    if (exec_ms > 0) {
+        cJSON_AddNumberToObject(json, "exec_ms", exec_ms);
+    }
 
     char *json_str = cJSON_Print(json);
     if (!json_str) {
@@ -181,4 +239,8 @@ bool wifi_mqtt_publish_result(const char *transcript_hash, uint32_t events, bool
     cJSON_Delete(json);
 
     return msg_id >= 0;
+}
+
+const char *wifi_mqtt_device_id(void) {
+    return g_device_id;
 }

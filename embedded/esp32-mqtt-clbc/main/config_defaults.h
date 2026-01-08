@@ -12,5 +12,7 @@
 #define MQTT_BROKER_HOST "gateway"
 #define MQTT_BROKER_PORT 1883
 
-// Must be unique per device.
-#define DEVICE_ID "esp32-a"
+// Device identity:
+// - "auto": derive a stable ID from the device WiFi STA MAC (recommended for zero-config demos)
+// - otherwise: set a fixed ID like "esp32-a"
+#define DEVICE_ID "auto"
