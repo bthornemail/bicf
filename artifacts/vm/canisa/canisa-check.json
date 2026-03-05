@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "runtime": "canisa-mvp-c",
+  "pass": true,
+  "cases": [
+    {
+      "case": "state_hash_path",
+      "ok": true,
+      "events": 7,
+      "state_hash": "sha256:ffda1901bad709c1ddb31a7b68ffdb2fc6adfc3b825525f1914392c3b91c47b7",
+      "fano_hash": "sha256:a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc"
+    },
+    {
+      "case": "bad_modulus_expected_failure",
+      "ok": false
+    }
+  ],
+  "runner_sha256": "sha256:7d07ea19321de8a8386caa6767dd6e11a4b2905b8443adda0c4c6c322a642056",
+  "binary_sha256": "sha256:d3e8c6e956d2f7164a2c3659ba4744259594b75b2c35c07a3b88ce191b1082ff",
+  "ndjson_sha256": "sha256:1ffa33acff50f75d102aeb94b64294a2037853d45259103687d6b55f8b753e0e"
+}

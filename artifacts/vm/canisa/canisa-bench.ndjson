@@ -1,0 +1,3 @@
+{"event":"vm.bench.start","seq":1,"payload":{"runtime":"canisa-mvp-c","case":"state_hash_path","warmup":100,"iterations":10000}}
+{"event":"vm.bench.metric","seq":2,"payload":{"runtime":"canisa-mvp-c","case":"state_hash_path","metric":"exec_ns","total":133435481,"ns_per_iter":13343,"ops_per_sec":74945}}
+{"event":"vm.bench.end","seq":3,"payload":{"runtime":"canisa-mvp-c","case":"state_hash_path","pass":true,"state_hash":"sha256:ffda1901bad709c1ddb31a7b68ffdb2fc6adfc3b825525f1914392c3b91c47b7","fano_hash":"sha256:a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc"}}

@@ -1,0 +1,4 @@
+{"event":"canisa.run.start","t":"1970-01-01T00:00:00.000Z","payload":{"cases":2}}
+{"event":"canisa.case.end","t":"1970-01-01T00:00:00.000Z","payload":{"case":"state_hash_path","ok":true,"events":7,"state_hash":"sha256:ffda1901bad709c1ddb31a7b68ffdb2fc6adfc3b825525f1914392c3b91c47b7","fano_hash":"sha256:a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc"}}
+{"event":"canisa.case.end","t":"1970-01-01T00:00:00.000Z","payload":{"case":"bad_modulus_expected_failure","ok":false}}
+{"event":"canisa.run.end","t":"1970-01-01T00:00:00.000Z","payload":{"ok_cases":1}}

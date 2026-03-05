@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "runtime": "canisa-mvp-c",
+  "case": "state_hash_path",
+  "warmup_iterations": 100,
+  "iterations": 10000,
+  "pass": true,
+  "compile_ns": 149925748,
+  "exec_ns": {
+    "total": 133435481,
+    "ns_per_iter": 13343,
+    "ops_per_sec": 74945
+  },
+  "hashes": {
+    "state_hash": "sha256:ffda1901bad709c1ddb31a7b68ffdb2fc6adfc3b825525f1914392c3b91c47b7",
+    "fano_hash": "sha256:a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc"
+  },
+  "artifacts": {
+    "bench_ndjson_sha256": "sha256:a8b9097e345e6c4e49c8db35c9a2eb845d8151afe7ab3149cf10dfb9ab8fa0cb",
+    "binary_sha256": "sha256:7b3efe3ffa284f1ed5890ae9cbccda1abe450a93051aa25e18045af6ed70ddec",
+    "runner_sha256": "sha256:601c1e68d9f1c7c0389863406229fbae3a7d6b7c902f3190c6c6d60edb92a733"
+  }
+}

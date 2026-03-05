@@ -19,7 +19,10 @@
     "validate:schema": "npm run validate:schema",
     "demo": "npm run demo",
     "docker:build": "npm run docker:build",
-    "docker:run": "npm run docker:run"
+    "docker:run": "npm run docker:run",
+    "canisa:test": "node scripts/run-canisa-vectors.mjs",
+    "canisa:test:determinism": "node scripts/check-canisa-determinism.mjs",
+    "canisa:bench": "node scripts/bench-canisa-vectors.mjs"
   },
   "dependencies": {
     "lodash": "^4.17.21",
